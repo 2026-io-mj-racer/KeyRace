@@ -7,6 +7,7 @@ sealed class GameEvent() {
     object OnStartGame: GameEvent()
     object OnPauseGame: GameEvent()
     object OnResumeGame: GameEvent()
+    object OnRestartGame: GameEvent()
     object OnExitToMenu: GameEvent()
     object OnPlayAgain: GameEvent()
     data class OnSelectedGameMode(val gameMode: GameMode): GameEvent()

@@ -4,17 +4,17 @@ import com.example.keyraceapp.domain.models.GameStatus
 
 
 data class GameState(
-    val status: GameStatus,
-    val lives: Int,
-    val fallingSpeed: Float,
-    val typedText: String,
-    val targetText: String,
-    val mistakesMade: Int,
-    val correctWords: Int,
-    val elapsedTime: Float,
-    val currentWpm: Float,
-    val currentAcc: Float,
-    val points: Long
+    val status: GameStatus? = null,
+    val lives: Int?  = null,
+    val fallingSpeed: Float? = null,
+    val typedText: String? = null,
+    val targetText: String? = null,
+    val mistakesMade: Int? = null,
+    val correctWords: Int? = null,
+    val elapsedTime: Long? = null,
+    val currentWpm: Float? = null,
+    val currentAcc: Float? = null,
+    val points: Long? = null
 
 )
 

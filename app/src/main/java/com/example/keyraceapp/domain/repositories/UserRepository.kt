@@ -1,10 +1,11 @@
 package com.example.keyraceapp.domain.repositories
 
 import com.example.keyraceapp.domain.models.User
+import com.example.keyraceapp.util.Resource
 
 interface UserRepository {
-    fun getUser(): User
-    fun saveUser(user: User)
-    fun resetData(user: User)
+    suspend fun getUser(): Resource<User>
+    suspend fun saveUser(user: User): Resource<Unit>
+    suspend fun resetData(user: User): Resource<Unit>
 
 }
