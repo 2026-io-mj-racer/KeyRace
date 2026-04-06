@@ -1,8 +1,7 @@
 package com.example.keyraceapp.domain.models
 
-import android.app.GameState
-import android.util.Log.w
 import com.example.keyraceapp.presentation.Game.ConfigState
+import com.example.keyraceapp.presentation.Game.GameState
 
 sealed class Score()  {
     abstract val wpm: Float
@@ -21,7 +20,7 @@ sealed class Score()  {
     ): Score()
 
     companion object {
-        fun buildScore(gameState: GameState, configState: ConfigState): Score{
+        fun buildScore(gameState: GameState , configState: ConfigState): Score{
             return ArcadeScore()
         }
     }
