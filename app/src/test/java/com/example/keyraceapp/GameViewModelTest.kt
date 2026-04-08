@@ -17,19 +17,19 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import strikt.api.expectThat
+import strikt.assertions.isEqualTo
 import kotlin.test.assertEquals
-import strikt.api.*
-import strikt.assertions.*
 
 class FakeTimeProvider: TimeProvider {
     var currentTime = 0L
@@ -324,5 +324,32 @@ class GameViewModelTest {
         assertEquals(GameStatus.PLAYING, viewModel.gameState.status)
         assertEquals(0, viewModel.gameState.elapsedTime)
         assertEquals("HA HI".toSortedSet(), viewModel.gameState.targetText!!.toSortedSet(), message = "Check if target text IS NOT NULL!!!")
+    }
+    @Test
+    fun `finishGame() - ARCADE - game end when lives == 0`() = runTest {
+        val exampleArcadeMode = GameMode.Arcade(Difficulty.HARD)
+        viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleArcadeMode))
+        viewModel.onEvent(GameEvent.OnStartGame)
+        runCurrent()
+
+        viewModel.onEvent(GameEvent.OnChangeText("x"))
+
+        assertEquals(0, viewModel.gameState.lives)
+        assertEquals(GameStatus.FINISHED, viewModel.gameState.status)
+    }
+
+    @Test
+    fun `OnChangeText - ARCADE - when user types wrong letter number of lives should be decremented`() = runTest {
+        val exampleArcadeMode = GameMode.Arcade(Difficulty.MEDIUM)
+        viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleArcadeMode))
+        viewModel.onEvent(GameEvent.OnStartGame)
+
+        assertEquals(3, viewModel.gameState.lives)
+
+        viewModel.onEvent(GameEvent.OnChangeText("x"))
+
+        assertEquals(2, viewModel.gameState.lives)
+
+
     }
 }

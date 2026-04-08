@@ -1,6 +1,5 @@
 package com.example.keyraceapp.presentation.Game
 
-import com.example.keyraceapp.domain.models.Difficulty
 import com.example.keyraceapp.domain.models.GameMode
 
 sealed class GameEvent() {

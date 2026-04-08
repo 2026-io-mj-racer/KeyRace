@@ -2,7 +2,7 @@ package com.example.keyraceapp.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
+import java.time.LocalDate
 import java.util.UUID
 
 
@@ -13,8 +13,6 @@ data class ArcadeScoreEntity(
     val acc: Float,
     val difficulty: String,
     val points: Long,
-    val date: Date
-
-
+    val date: LocalDate
 )
 

@@ -2,7 +2,7 @@ package com.example.keyraceapp.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
+import java.time.LocalDate
 import java.util.UUID
 
 @Entity
@@ -13,5 +13,5 @@ data class TrainingScoreEntity(
     val correctWords: Int,
     val mistakesMade: Int,
     val trainingType: String,
-    val date: Date
+    val date: LocalDate
 )

@@ -1,6 +1,5 @@
 package com.example.keyraceapp.presentation.Game
 
-import android.os.SystemClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,7 +9,6 @@ import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
 import com.example.keyraceapp.util.TimeProvider
 import kotlinx.coroutines.Job
-import kotlin.time.Clock
 
 
 class GameViewModel(
