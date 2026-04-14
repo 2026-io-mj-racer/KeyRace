@@ -57,7 +57,9 @@ class UserRepositoryTest {
 
     @Test
     fun `saveUser() - returns Success with Nothing when user saved correctly`() = runTest {
-        coEvery {userDao.insert(exampleUserEntity)} just Runs
+        //fix because UUID is randomly generated - so we don't care what kind of user is inserted
+        //we just care that some is inserted and it does not throw any exception
+        coEvery {userDao.insert(any())} just Runs
 
         val actual = userRepository.saveUser(exampleUser)
 
@@ -65,7 +67,8 @@ class UserRepositoryTest {
     }
     @Test
     fun `saveUser() - returns Error when inserting a user throws an exception`() = runTest {
-        coEvery { userDao.insert(exampleUserEntity) } throws RuntimeException("Unable to insert user")
+        //same as test above!!
+        coEvery { userDao.insert(any()) } throws RuntimeException("Unable to insert user")
 
         val actual = userRepository.saveUser(exampleUser)
 
@@ -75,6 +78,8 @@ class UserRepositoryTest {
     @Test
     fun `resetData() - returns Success when deletion is done`() = runTest {
         coEvery { userDao.deleteUser() } just Runs
+        coEvery { userDao.deleteArcadeScores() } just Runs
+        coEvery { userDao.deleteTrainingScores() } just Runs
 
         val actual = userRepository.resetData(exampleUser)
 
