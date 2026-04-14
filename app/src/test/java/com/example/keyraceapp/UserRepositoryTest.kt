@@ -57,7 +57,7 @@ class UserRepositoryTest {
 
     @Test
     fun `saveUser() - returns Success with Nothing when user saved correctly`() = runTest {
-        coEvery {userDao.insert(exampleUser)} just Runs
+        coEvery {userDao.insert(exampleUserEntity)} just Runs
 
         val actual = userRepository.saveUser(exampleUser)
 
@@ -65,7 +65,7 @@ class UserRepositoryTest {
     }
     @Test
     fun `saveUser() - returns Error when inserting a user throws an exception`() = runTest {
-        coEvery { userDao.insert(exampleUser) } throws RuntimeException("Unable to insert user")
+        coEvery { userDao.insert(exampleUserEntity) } throws RuntimeException("Unable to insert user")
 
         val actual = userRepository.saveUser(exampleUser)
 
