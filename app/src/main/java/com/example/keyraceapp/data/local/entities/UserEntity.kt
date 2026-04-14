@@ -7,5 +7,5 @@ import java.util.UUID
 @Entity
 data class UserEntity(
     val name: String,
-    @PrimaryKey val id: UUID? = null
+    @PrimaryKey val id: String = UUID.randomUUID().toString()
 )

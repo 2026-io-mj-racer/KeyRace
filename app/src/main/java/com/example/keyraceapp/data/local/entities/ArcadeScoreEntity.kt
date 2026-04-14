@@ -8,11 +8,11 @@ import java.util.UUID
 
 @Entity
 data class ArcadeScoreEntity(
-    @PrimaryKey val id: UUID? = null,
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val wpm: Float,
     val acc: Float,
     val difficulty: String,
     val points: Long,
-    val date: LocalDate
+    val date: String,
 )
 
