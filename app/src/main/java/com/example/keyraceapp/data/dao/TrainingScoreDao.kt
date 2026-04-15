@@ -13,6 +13,5 @@ interface TrainingScoreDao {
 
     @Query("SELECT * FROM TrainingScoreEntity ORDER BY wpm DESC LIMIT 10")
     suspend fun getTopTenScores(): List<TrainingScoreEntity>
-
 }
 

@@ -1,13 +1,9 @@
 package com.example.keyraceapp.data.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.keyraceapp.data.local.entities.ArcadeScoreEntity
-import com.example.keyraceapp.data.local.entities.TrainingScoreEntity
 import com.example.keyraceapp.data.local.entities.UserEntity
-import com.example.keyraceapp.domain.models.User
 
 @Dao
 interface UserDao {
