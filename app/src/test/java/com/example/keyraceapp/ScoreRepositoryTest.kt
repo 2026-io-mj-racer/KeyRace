@@ -52,6 +52,7 @@ class ScoreRepositoryTest {
     fun setup() {
         every {db.trainingScoreDao } returns trainingScoreDao
         every {db.arcadeScoreDao} returns arcadeScoreDao
+        every {db.userDao} returns userDao//forgot about this :)
 
         scoreRepository = ScoreRepositoryImpl(db)
     }
