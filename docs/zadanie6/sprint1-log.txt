@@ -1,0 +1,17 @@
+b0aba7b Merge pull request #8 from 2026-io-mj-racer/feature/word-repository-calculator-factory
+daa8bdd add: score builder, typingcalc formulas
+3e4afd2 fix: typo and one wrong check
+7872862 add wordRepository implementation
+b555f2a Merge pull request #7 from 2026-io-mj-racer/feature/room
+ccbd76f optmize imports
+99cbd87 fix: added userDao mock :)
+09fd8ca add JDLTS dirs/files to gitignore
+c675c91 score and user repo implementations
+6ea9dd7 fix: user -> userEnttiy without comparing random IDs
+484c87d fix: mock tests now use any() matcher in saveUser and resetUser
+beec1b5 add mappers implementation
+3ecdcce fix: mappers, dao argument mismatch
+2c4ff7b add room - db, daos
+283d2ba add room dependencies
+4bcb74d add hilt entry points
+4223524 add hilt dependencies
