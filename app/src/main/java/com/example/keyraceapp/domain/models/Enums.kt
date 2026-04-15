@@ -3,7 +3,17 @@ package com.example.keyraceapp.domain.models
 enum class Difficulty {
     EASY,
     MEDIUM,
-    HARD
+    HARD;
+
+    companion object {
+        fun stringToDifficulty(s: String): Difficulty  =
+            when(s) {
+                "EASY" -> EASY
+                "MEDIUM" -> MEDIUM
+                "HARD" -> HARD
+                else -> throw IllegalArgumentException("Invalid String: ${s}; Should be either `EASY` or `MEDIUM` or `HARD`")
+            }
+    }
 }
 
 enum class TimePeriod {

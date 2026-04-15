@@ -36,6 +36,7 @@ class FakeTimeProvider: TimeProvider {
     override fun now(): Long =  currentTime
     fun advanceBy(time: Long) =  currentTime + time;
 }
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class GameViewModelTest {
 
     private lateinit var viewModel: GameViewModel
@@ -46,7 +47,6 @@ class GameViewModelTest {
     val exampleTimeMode = GameMode.Training.TimeBased(TimePeriod.THIRTY_SECONDS)
     val exampleWordMode = GameMode.Training.WordBased(WordCount.THIRTY_WORDS)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
@@ -60,7 +60,6 @@ class GameViewModelTest {
         coEvery { wordRepository.getWords() } returns flowOf(Resource.Success(listOf("HA", "HI")))
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @After
     fun tearDown() {
         Dispatchers.resetMain()
@@ -123,7 +122,6 @@ class GameViewModelTest {
         assertEquals(expectedConfigState, viewModel.configState)
 
     }
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `startGame() - TIMEBASED - timer starts after user types the first letter and advances the elapsedTime in state`() = runTest {
 
@@ -230,7 +228,6 @@ class GameViewModelTest {
         assertEquals(GameStatus.PAUSED, viewModel.gameState.status)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `pauseGame() - pauses the timer when OnGamePause invoked`() = runTest {
         viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleTimeMode))
@@ -259,7 +256,6 @@ class GameViewModelTest {
 
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `resumeGame() resumes timer when OnResume is invoked`() = runTest {
         viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleTimeMode))
@@ -283,7 +279,6 @@ class GameViewModelTest {
         assertEquals(20L, viewModel.gameState.elapsedTime)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `finishGame()- TIMEBASED - game ends when elapsed time is equal to TimeBased period and there were no puases`() = runTest {
         viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleTimeMode))
@@ -309,7 +304,6 @@ class GameViewModelTest {
     }
 
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `OnPlayAgain - game generates new text and puts it into playing mode, without starting the timer`() = runTest {
         viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleTimeMode))

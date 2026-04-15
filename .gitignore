@@ -36,3 +36,9 @@ replay_pid*
 .externalNativeBuild
 .cxx
 local.properties
+
+
+#JDLTS LSP
+.settings/
+.project
+.classpath

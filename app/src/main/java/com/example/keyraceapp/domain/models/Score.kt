@@ -11,6 +11,7 @@ sealed class Score()  {
         override val wpm: Float = 0f,
         override val acc: Float = 0f,
         val mistakesMade: Int = 0,
+        val trainingType: String = "TIME_BASED"
         ): Score()
     data class ArcadeScore (
         override val wpm: Float = 0f,

@@ -3,6 +3,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -24,7 +26,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.keyraceapp"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -51,9 +53,16 @@ android {
 }
 
 dependencies {
+    //HILT
+    implementation("com.google.dagger:hilt-android:2.59.2")
+    implementation(libs.androidx.appcompat)
+    ksp("com.google.dagger:hilt-compiler:2.59.2")
+
+    //ROOM
     implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

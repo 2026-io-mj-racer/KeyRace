@@ -24,7 +24,7 @@ class MappersTest {
         TrainingScoreEntity(
             wpm = 20f,
             acc = 100f,
-            date = LocalDate.MIN,
+            date = LocalDate.MIN.toString(),
             correctWords = 30,
             mistakesMade = 0,
             trainingType = "TIME_BASED",
@@ -44,7 +44,7 @@ class MappersTest {
             acc = 100f,
             difficulty = "MEDIUM",
             points = 10,
-            date = LocalDate.MIN,
+            date = LocalDate.MIN.toString(),
         )
 
     private val matchingArcadeScore =
@@ -88,7 +88,11 @@ class MappersTest {
 
         val actual = domain.toUserEntity()
 
-        assertEquals(entity, actual)
+        //fix: do not compare the randomly generated IDs
+        //just the name
+        expectThat(actual) {
+            get{name}.isEqualTo(entity.name)
+        }
     }
     @Test
     fun `ArcadeScoreEntity maps correctly to ArcadeScore`() {

@@ -33,7 +33,7 @@ class ScoreRepositoryTest {
         TrainingScoreEntity(
             wpm = 40f,
             acc = 100f,
-            date = LocalDate.MIN,
+            date = LocalDate.MIN.toString(),
             correctWords = 40,
             mistakesMade = 0,
             trainingType = "TIME_BASED",
@@ -45,13 +45,14 @@ class ScoreRepositoryTest {
             acc = 100f,
             difficulty = "HARD",
             points = 100,
-            date = LocalDate.MIN,
+            date = LocalDate.MIN.toString(),
         )
 
     @Before
     fun setup() {
         every {db.trainingScoreDao } returns trainingScoreDao
         every {db.arcadeScoreDao} returns arcadeScoreDao
+        every {db.userDao} returns userDao//forgot about this :)
 
         scoreRepository = ScoreRepositoryImpl(db)
     }
