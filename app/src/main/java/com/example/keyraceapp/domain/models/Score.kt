@@ -22,7 +22,30 @@ sealed class Score()  {
 
     companion object {
         fun buildScore(gameState: GameState , configState: ConfigState): Score{
-            return ArcadeScore()
+            return when(configState.gameMode) {
+                is GameMode.Arcade ->
+                    ArcadeScore(
+                        wpm = gameState.currentWpm ?: 0.0f,
+                        acc = gameState.currentAcc ?: 0.0f,
+                        points = gameState.points ?: 0L,
+                        difficulty = configState.gameMode.difficulty
+                    )
+                is GameMode.Training ->
+                    TrainingScore(
+                        wpm = gameState.currentWpm ?: 0.0f,
+                        acc = gameState.currentAcc ?: 0.0f,
+                        trainingType = when(configState.gameMode) {
+                            is GameMode.Training.TimeBased -> "TIME_BASED"
+                            is GameMode.Training.WordBased -> "WORD_BASED"
+                        },
+                            mistakesMade = gameState.mistakesMade ?: 0,
+                            correctWords = gameState.correctWords ?: 0,
+                        )
+                else -> throw IllegalStateException("""
+                    configState.gameMode is null!
+                    Please make sure that you pass valid configState to the builder.
+                """.trimIndent())
+            }
         }
     }
 }
