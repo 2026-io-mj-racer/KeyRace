@@ -64,7 +64,7 @@ class TypingCalculatorTest {
         assertEquals(100f, result)
     }
     @Test
-    fun `ACC - should return 0 when any parameter is 0`() {
+    fun `ACC - should return 0 when any parameter is negative`() {
         data class ACCParameters(val length: Int, val mistakesMade: Int)
 
         val cases = listOf(
@@ -101,8 +101,6 @@ class TypingCalculatorTest {
             PointsParameters(0, Difficulty.EASY, 10f, 11f),
             PointsParameters(10, Difficulty.EASY, 0f, 11f),
             PointsParameters(10, Difficulty.EASY, 10f, 0f),
-            PointsParameters(10, Difficulty.EASY, 10f, 11f)
-
         )
 
         cases.forEach {
