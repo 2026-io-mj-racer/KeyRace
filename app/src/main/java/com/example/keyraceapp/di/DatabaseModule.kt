@@ -6,6 +6,7 @@ import com.example.keyraceapp.data.local.KeyRaceDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 
 @Module
@@ -13,7 +14,7 @@ import dagger.hilt.components.SingletonComponent
 object DatabaseModule {
 
     @Provides
-    fun providesKeyRaceDb(context: Context): KeyRaceDatabase {
+    fun providesKeyRaceDb(@ApplicationContext context: Context): KeyRaceDatabase {
         return Room.databaseBuilder<KeyRaceDatabase>(
             context = context,
             name =  "KeyRace.db",
