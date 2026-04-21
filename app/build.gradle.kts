@@ -1,10 +1,13 @@
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.kotlin.dsl.implementation
+import org.jetbrains.kotlin.gradle.internal.types.error.ErrorModuleDescriptor.platform
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    kotlin("plugin.serialization") version "2.2.10"
 }
 
 android {
@@ -54,16 +57,19 @@ android {
 
 dependencies {
     //HILT
-    implementation("com.google.dagger:hilt-android:2.59.2")
+    implementation(libs.hilt.android)
     implementation(libs.androidx.appcompat)
-    ksp("com.google.dagger:hilt-compiler:2.59.2")
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.hilt.navigation.compose)
+    ksp(libs.hilt.compiler)
 
     //ROOM
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
-    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -73,6 +79,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation("androidx.compose.material:material-icons-extended")
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.strikt.core)

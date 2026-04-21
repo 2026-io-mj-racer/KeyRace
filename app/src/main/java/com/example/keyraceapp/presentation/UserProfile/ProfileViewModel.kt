@@ -6,8 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class ProfileViewModel(
+@HiltViewModel
+class ProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val scoreRepository: ScoreRepository
 ): ViewModel() {

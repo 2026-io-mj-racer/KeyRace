@@ -8,10 +8,13 @@ import com.example.keyraceapp.domain.models.GameMode
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
 import com.example.keyraceapp.util.TimeProvider
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import javax.inject.Inject
 
 
-class GameViewModel(
+@HiltViewModel
+class GameViewModel @Inject constructor(
     private val wordRepository: WordRepository,
     private val scoreRepository: ScoreRepository,
     private  val timeProvider: TimeProvider

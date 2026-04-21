@@ -11,6 +11,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.example.keyraceapp.navigation.KeyRaceHost
+import com.example.keyraceapp.presentation.Game.GameViewModel
 import com.example.keyraceapp.presentation.Splash.SplashScreen
 import com.example.keyraceapp.ui.theme.KeyRaceAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,6 +26,7 @@ class MainActivity : AppCompatActivity() {
             KeyRaceAppTheme {
                 var showSplash by remember { mutableStateOf(true) }
 
+
                 Crossfade(showSplash) { splash ->
                     if (splash) {
                         SplashScreen(
@@ -32,7 +35,7 @@ class MainActivity : AppCompatActivity() {
                             modifier = Modifier.Companion.fillMaxSize()
                         )
                     } else {
-                        MainScreen()
+                        KeyRaceHost()
                     }
                 }
             }
