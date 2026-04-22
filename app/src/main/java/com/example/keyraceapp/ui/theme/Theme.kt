@@ -17,7 +17,7 @@ private val DarkColorScheme = darkColorScheme(
     secondary =  LighterBlack,
     tertiary = ColdGray,
 
-    background = Color.Black,
+    background = BackgroundBlack,
     onBackground = Color.White,
     onPrimary = Color.White,
     onSecondary = Color.White,
