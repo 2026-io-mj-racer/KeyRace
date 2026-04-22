@@ -34,6 +34,7 @@ class ProfileViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         viewModel = ProfileViewModel(userRepository, scoreRepository)
+
     }
 
     @After
@@ -112,7 +113,7 @@ class ProfileViewModelTest {
         viewModel.onEvent(ProfileEvent.OnFetchTraining)
 
         advanceUntilIdle()
-        assert(viewModel.state.wordsTyped == 2000)
+        assert(viewModel.state.wordsTyped == 2000L)
     }
 
     @Test
@@ -122,7 +123,7 @@ class ProfileViewModelTest {
         viewModel.onEvent(ProfileEvent.OnFetchTraining)
 
         advanceUntilIdle()
-        assert(viewModel.state.gamesPlayed == 100)
+        assert(viewModel.state.gamesPlayed == 100L)
 
     }
 
@@ -182,7 +183,7 @@ class ProfileViewModelTest {
         viewModel.onEvent(ProfileEvent.OnFetchArcade)
 
         advanceUntilIdle()
-        assert(viewModel.state.wordsTyped == 2000)
+        assert(viewModel.state.wordsTyped == 2000L)
 
     }
 
@@ -194,7 +195,7 @@ class ProfileViewModelTest {
         viewModel.onEvent(ProfileEvent.OnFetchArcade)
 
         advanceUntilIdle()
-        assert(viewModel.state.gamesPlayed == 100)
+        assert(viewModel.state.gamesPlayed == 100L)
     }
     @Test
     fun `OnResetUserData - sets state to initial values after reset when userRepository returns success`() = runTest {
