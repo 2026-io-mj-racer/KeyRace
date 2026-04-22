@@ -6,10 +6,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.keyraceapp.domain.models.GameMode
-import com.example.keyraceapp.domain.models.TimePeriod
-import com.example.keyraceapp.presentation.Game.ConfigScreen
+import com.example.keyraceapp.presentation.Game.configScreen.ConfigScreen
 import com.example.keyraceapp.presentation.Game.GameEvent
+import com.example.keyraceapp.presentation.Game.GameScreen
 import com.example.keyraceapp.presentation.Game.GameViewModel
 import com.example.keyraceapp.presentation.UserProfile.ProfileScreen
 import com.example.keyraceapp.presentation.UserProfile.ProfileViewModel
@@ -32,18 +31,24 @@ fun KeyRaceHost(
                 onNavigateToProfile = {
                     navController.navigate(route = Profile)
                 },
+                onNavigateToGameScreen = {
+                    navController.navigate(route = Game)
+
+                },
                 configState = gameViewModel.configState,
-                onGameConfigSelected = {
-                    gameViewModel.onEvent(GameEvent.OnSelectedGameMode(gameViewModel.configState.gameMode!!))
+                onGameConfigSelected =  { mode ->
+                    gameViewModel.onEvent(GameEvent.OnSelectedGameMode(mode))
                 }
             )
         }
+
         composable<Profile> {
-            ProfileScreen(
-                onNavigateBack = {
-                    navController.navigate(route = Config)
-                },
-            )
+            ProfileScreen(onNavigateBack = { navController.popBackStack() })
         }
+
+        composable<Game> {
+            GameScreen(onNavigateBack = {navController.popBackStack()})
+        }
+
     }
 }

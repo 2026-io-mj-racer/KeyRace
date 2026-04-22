@@ -27,7 +27,10 @@ class GameViewModel @Inject constructor(
     private var accumulatedTime: Long? = null
 
     fun onEvent(event: GameEvent) {
-
+        when(event) {
+            is GameEvent.OnSelectedGameMode -> selectGameMode(event.gameMode)
+            else -> {}
+        }
     }
     private fun restartGame() {
 
@@ -51,7 +54,9 @@ class GameViewModel @Inject constructor(
 
     }
     private fun selectGameMode(mode: GameMode) {
-
+        configState = configState.copy(
+            gameMode = mode
+        )
     }
     private fun finishGame(clock: Long) {
 
