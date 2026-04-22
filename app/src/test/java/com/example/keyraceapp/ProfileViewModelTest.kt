@@ -57,6 +57,8 @@ class ProfileViewModelTest {
     @Test
     fun `fetchTrainingData - sets topWpm in state when userRepository returns success`() = runTest {
         val expectedWpm = 50f
+        coEvery { scoreRepository.getTotalGames() } returns Resource.Success(data =  0L)
+        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(0L)
         coEvery { scoreRepository.getTopTenTraining() } returns
                 flowOf(
                     Resource.Success(
@@ -67,6 +69,8 @@ class ProfileViewModelTest {
                         )
                     )
                 )
+
+
 
         viewModel.onEvent(ProfileEvent.OnFetchTraining)
         advanceUntilIdle()
@@ -80,6 +84,8 @@ class ProfileViewModelTest {
             Score.TrainingScore(correctWords = 100, wpm = 30f, acc = 100f, mistakesMade = 0),
             Score.TrainingScore(correctWords = 100, wpm = 20f, acc = 100f, mistakesMade = 0)
         )
+        coEvery { scoreRepository.getTotalGames() } returns Resource.Success(data =  0L)
+        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(0L)
         coEvery { scoreRepository.getTopTenTraining() } returns
                 flowOf(
                     Resource.Success(
@@ -100,6 +106,8 @@ class ProfileViewModelTest {
                         emptyList()
                     )
                 )
+        coEvery { scoreRepository.getTotalGames() } returns Resource.Success(data =  0L)
+        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(0L)
 
         viewModel.onEvent(ProfileEvent.OnFetchTraining)
         advanceUntilIdle()
@@ -108,7 +116,14 @@ class ProfileViewModelTest {
 
     @Test
     fun  `fetchTrainingData - sets wordsTyped in state when userRepository returns success` () = runTest {
-        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(2000)
+        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(2000L)
+        coEvery { scoreRepository.getTotalGames() } returns Resource.Success(data =  0L)
+        coEvery { scoreRepository.getTopTenTraining() } returns
+                flowOf(
+                    Resource.Success(
+                        emptyList()
+                    )
+                )
 
         viewModel.onEvent(ProfileEvent.OnFetchTraining)
 
@@ -118,7 +133,15 @@ class ProfileViewModelTest {
 
     @Test
     fun `fetchTrainingData - sets gamesPlayed in state when userRepository return success`() = runTest {
-        coEvery { scoreRepository.getTotalGames() } returns Resource.Success(100)
+        coEvery { scoreRepository.getTotalGames() } returns Resource.Success(100L)
+        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(0L)
+        coEvery { scoreRepository.getTopTenTraining() } returns
+                flowOf(
+                    Resource.Success(
+                        emptyList()
+                    )
+                )
+
 
         viewModel.onEvent(ProfileEvent.OnFetchTraining)
 
@@ -130,6 +153,8 @@ class ProfileViewModelTest {
     @Test
     fun `fetchArcadeData - sets topWpm in state when userRepository returns success`() = runTest {
         val expectedWpm = 60f
+        coEvery { scoreRepository.getTotalGames() } returns Resource.Success(100)
+        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(0L)
         coEvery { scoreRepository.getTopTenArcade() } returns
                 flowOf(
                     Resource.Success(
@@ -155,6 +180,8 @@ class ProfileViewModelTest {
                 flowOf (
                     Resource.Success(expectedScores)
                 )
+        coEvery { scoreRepository.getTotalGames() } returns Resource.Success(100)
+        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(0L)
 
         viewModel.onEvent(ProfileEvent.OnFetchArcade)
         println(viewModel.state.topScores)
@@ -165,6 +192,8 @@ class ProfileViewModelTest {
     @Test
     fun `fetchArcadeData - sets topScores to emptyList when userRepository return success and emptyList`() = runTest {
 
+        coEvery { scoreRepository.getTotalGames() } returns Resource.Success(100)
+        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(0L)
         coEvery {scoreRepository.getTopTenArcade()} returns
                 flowOf(
                     Resource.Success(emptyList())
@@ -178,7 +207,15 @@ class ProfileViewModelTest {
 
     @Test
     fun `fetchArcadeData - sets wordsTyped in state when userRepository returns success`() = runTest {
-        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(2000)
+
+        coEvery { scoreRepository.getTotalGames() } returns Resource.Success(100)
+        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(2000L)
+        coEvery {scoreRepository.getTopTenArcade()} returns
+                flowOf(
+                    Resource.Success(emptyList())
+                )
+
+
 
         viewModel.onEvent(ProfileEvent.OnFetchArcade)
 
@@ -192,6 +229,13 @@ class ProfileViewModelTest {
 
         coEvery { scoreRepository.getTotalGames() } returns Resource.Success(100)
 
+        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(2000)
+        coEvery {scoreRepository.getTopTenArcade()} returns
+                flowOf(
+                    Resource.Success(emptyList())
+                )
+
+
         viewModel.onEvent(ProfileEvent.OnFetchArcade)
 
         advanceUntilIdle()
@@ -199,8 +243,7 @@ class ProfileViewModelTest {
     }
     @Test
     fun `OnResetUserData - sets state to initial values after reset when userRepository returns success`() = runTest {
-        val user = User("John")
-        coEvery { userRepository.resetData(user) } returns Resource.Success(Unit)
+        coEvery { userRepository.resetData(any()) } returns Resource.Success(Unit)
 
         viewModel.onEvent(ProfileEvent.OnResetUserData)
 
@@ -215,6 +258,8 @@ class ProfileViewModelTest {
                 flowOf(
                     Resource.Error("Unable to fetch training data")
                 )
+        coEvery { scoreRepository.getTotalGames() } returns Resource.Success(100)
+        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(2000)
 
         viewModel.onEvent(ProfileEvent.OnFetchTraining)
 
@@ -240,6 +285,9 @@ class ProfileViewModelTest {
                     Resource.Error(message =  "Unable to fetch arcade data")
                 )
 
+        coEvery { scoreRepository.getTotalGames() } returns Resource.Success(100)
+        coEvery { scoreRepository.getTotalWords() } returns Resource.Success(2000)
+
         viewModel.onEvent(ProfileEvent.OnFetchArcade)
 
         advanceUntilIdle()
@@ -249,8 +297,7 @@ class ProfileViewModelTest {
     @Test
     fun `OnResetUserData - sets errorMessage in state when userRepository returns error` () = runTest {
 
-        val user = User("John")
-        coEvery { userRepository.resetData(user) } returns Resource.Error("Unable to reset data")
+        coEvery { userRepository.resetData(any()) } returns Resource.Error("Unable to reset data")
 
         viewModel.onEvent(ProfileEvent.OnResetUserData)
 
