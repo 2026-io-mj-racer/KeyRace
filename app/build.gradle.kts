@@ -22,6 +22,7 @@ android {
         unitTests.all {
               it.testLogging {
                   events(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
+                  showStandardStreams = true
 
               }
         }
