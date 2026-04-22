@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -111,7 +112,11 @@ fun ConfigScreen(
                 }
             }
 
-            Button(onClick = onNavigateToGameScreen, modifier = Modifier.padding(8.dp)) {
+            Button(
+                onClick = onNavigateToGameScreen,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                modifier = Modifier.padding(8.dp)
+            ) {
                 Text(
                     text = "START",
                     style = MaterialTheme.typography.bodyLarge,
