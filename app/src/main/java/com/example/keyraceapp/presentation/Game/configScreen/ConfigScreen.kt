@@ -64,7 +64,6 @@ fun ConfigScreen(
                         optionsWithHandlers = optionsWithHandlers
                     )
 
-                    Column {
                         when(mode) {
                             is GameMode.Training.TimeBased -> {
                                 val optionsWithHandlers = mutableMapOf<String, () -> Unit>()
@@ -94,7 +93,6 @@ fun ConfigScreen(
                                     optionsWithHandlers = optionsWithHandlers
                                 )
                            }
-                        }
                     }
                 } is GameMode.Arcade -> {
                     val optionsWithHandlers = mutableMapOf<String, () -> Unit>()
