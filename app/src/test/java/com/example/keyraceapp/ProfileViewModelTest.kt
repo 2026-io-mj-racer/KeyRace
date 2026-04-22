@@ -11,19 +11,34 @@ import com.example.keyraceapp.presentation.UserProfile.ProfileViewModel
 import com.example.keyraceapp.util.Resource
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ProfileViewModelTest {
     private lateinit var viewModel: ProfileViewModel
     private val userRepository = mockk<UserRepository>()
     private val scoreRepository = mockk<ScoreRepository>()
+    private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setUp() {
+        Dispatchers.setMain(testDispatcher)
         viewModel = ProfileViewModel(userRepository, scoreRepository)
+    }
+
+    @After
+    fun cleanUp() {
+        Dispatchers.resetMain()
     }
 
     // SUCCESS SCENARIO
@@ -33,6 +48,7 @@ class ProfileViewModelTest {
         coEvery { userRepository.getUser() } returns Resource.Success(expectedUser)
 
         viewModel.onEvent(ProfileEvent.OnFetchUser)
+        advanceUntilIdle()
 
         assert(viewModel.state.user == expectedUser)
     }
@@ -52,7 +68,7 @@ class ProfileViewModelTest {
                 )
 
         viewModel.onEvent(ProfileEvent.OnFetchTraining)
-
+        advanceUntilIdle()
         assert(viewModel.state.topWpm == expectedWpm)
     }
 
@@ -71,8 +87,8 @@ class ProfileViewModelTest {
                 )
 
         viewModel.onEvent(ProfileEvent.OnFetchTraining)
-
-        assert(viewModel.state.topScores == expectedScores)
+       advanceUntilIdle()
+       assert(viewModel.state.topScores == expectedScores)
     }
 
     @Test
@@ -85,7 +101,7 @@ class ProfileViewModelTest {
                 )
 
         viewModel.onEvent(ProfileEvent.OnFetchTraining)
-
+        advanceUntilIdle()
         assert(viewModel.state.topScores.isEmpty())
     }
 
@@ -95,6 +111,7 @@ class ProfileViewModelTest {
 
         viewModel.onEvent(ProfileEvent.OnFetchTraining)
 
+        advanceUntilIdle()
         assert(viewModel.state.wordsTyped == 2000)
     }
 
@@ -104,6 +121,7 @@ class ProfileViewModelTest {
 
         viewModel.onEvent(ProfileEvent.OnFetchTraining)
 
+        advanceUntilIdle()
         assert(viewModel.state.gamesPlayed == 100)
 
     }
@@ -120,6 +138,7 @@ class ProfileViewModelTest {
 
         viewModel.onEvent(ProfileEvent.OnFetchArcade)
 
+        advanceUntilIdle()
         assert(viewModel.state.topWpm == expectedWpm)
     }
 
@@ -137,7 +156,8 @@ class ProfileViewModelTest {
                 )
 
         viewModel.onEvent(ProfileEvent.OnFetchArcade)
-
+        println(viewModel.state.topScores)
+        advanceUntilIdle()
         assert(viewModel.state.topScores == expectedScores)
     }
 
@@ -151,6 +171,7 @@ class ProfileViewModelTest {
 
         viewModel.onEvent(ProfileEvent.OnFetchArcade)
 
+        advanceUntilIdle()
         assert(viewModel.state.topScores.isEmpty())
     }
 
@@ -160,6 +181,7 @@ class ProfileViewModelTest {
 
         viewModel.onEvent(ProfileEvent.OnFetchArcade)
 
+        advanceUntilIdle()
         assert(viewModel.state.wordsTyped == 2000)
 
     }
@@ -171,6 +193,7 @@ class ProfileViewModelTest {
 
         viewModel.onEvent(ProfileEvent.OnFetchArcade)
 
+        advanceUntilIdle()
         assert(viewModel.state.gamesPlayed == 100)
     }
     @Test
@@ -180,6 +203,7 @@ class ProfileViewModelTest {
 
         viewModel.onEvent(ProfileEvent.OnResetUserData)
 
+        advanceUntilIdle()
         assert(viewModel.state == ProfileState())
     }
 
@@ -193,6 +217,7 @@ class ProfileViewModelTest {
 
         viewModel.onEvent(ProfileEvent.OnFetchTraining)
 
+        advanceUntilIdle()
         assert(viewModel.state.errorMessage == "Unable to fetch training data")
     }
 
@@ -203,6 +228,7 @@ class ProfileViewModelTest {
 
         viewModel.onEvent(ProfileEvent.OnFetchUser)
 
+        advanceUntilIdle()
         assert(viewModel.state.errorMessage == "Unable to fetch user")
     }
 
@@ -215,6 +241,7 @@ class ProfileViewModelTest {
 
         viewModel.onEvent(ProfileEvent.OnFetchArcade)
 
+        advanceUntilIdle()
         assert(viewModel.state.errorMessage == "Unable to fetch arcade data")
     }
 
@@ -226,6 +253,7 @@ class ProfileViewModelTest {
 
         viewModel.onEvent(ProfileEvent.OnResetUserData)
 
+        advanceUntilIdle()
         assert(viewModel.state.errorMessage == "Unable to reset data")
     }
 
