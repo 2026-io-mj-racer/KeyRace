@@ -60,7 +60,7 @@ fun GameModeSelectorColumn(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         for(entry in optionsWithHandlers.entries) {
