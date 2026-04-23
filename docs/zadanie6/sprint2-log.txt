@@ -1,0 +1,23 @@
+709f8e6 Merge pull request #16 from 2026-io-mj-racer/feature/navigation+ui
+d8727f6 refactor: Separate PRofileScreen into mutliple Composables corresponding to sections
+f5f93ad add Profile Screen UI implementation
+7e25752 Merge pull request #15 from 2026-io-mj-racer/feature/navigation+ui
+d908850 refactor: hoist duplicated logic into fetchTypingData and fetchWordsAndGames :)
+a8077d9 add: profileViewModel implementation
+50041d8 fix: fetching tests didn't mock the getTotalGames call and getTotalWordsCall
+e350ec4 Change Int to Long in Tests and ProfileState
+e947e55 fix: coroutine testing requires TestDispatcher
+0c1c38c change: even padding between column and row
+cd2b89d remove useless Column container
+dff79e8 change - button colors to white/black
+378fb33 add navigation between profile screen, game screen and config screen with basic implementation of the UI
+3308e56 add: toString implementation for enums
+536ca42 fix: now training mode constructor doesn't require one of its children :)) which means - infinite reccursion fixed
+9b60ccb add hilt modules and fix typos
+32b351f Merge branch 'main' into feature/navigation
+7d86023 Merge pull request #14 from 2026-io-mj-racer/feature/hilt
+8208b0c add: Hilt Modules for repositories and viewmodel annotations
+92c984b navigation dependencies and setup for Config <-> Profile screens
+6d374bb Merge pull request #13 from 2026-io-mj-racer/feature/splash-screen
+07ac66a add: splash screen animation
+14b0fe3 add: app theme color set, remove redundant .xml items
