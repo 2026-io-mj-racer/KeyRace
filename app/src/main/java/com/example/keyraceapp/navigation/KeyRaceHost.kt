@@ -7,13 +7,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.keyraceapp.domain.models.GameMode
-import com.example.keyraceapp.presentation.Game.configScreen.ConfigScreen
 import com.example.keyraceapp.presentation.Game.GameEvent
 import com.example.keyraceapp.presentation.Game.GameScreen
 import com.example.keyraceapp.presentation.Game.GameViewModel
+import com.example.keyraceapp.presentation.Game.configScreen.ConfigScreen
 import com.example.keyraceapp.presentation.UserProfile.ProfileEvent
-import com.example.keyraceapp.presentation.UserProfile.ProfileScreen
 import com.example.keyraceapp.presentation.UserProfile.ProfileViewModel
+import com.example.keyraceapp.presentation.UserProfile.profileScreen.ProfileScreen
 
 @Composable
 fun KeyRaceHost(
