@@ -19,6 +19,7 @@ import com.example.keyraceapp.domain.models.GameMode
 import com.example.keyraceapp.domain.models.TimePeriod
 import com.example.keyraceapp.domain.models.WordCount
 import com.example.keyraceapp.presentation.Game.ConfigState
+import com.example.keyraceapp.ui.theme.DeepWhite
 
 @Composable
 fun ConfigScreen(
@@ -112,7 +113,7 @@ fun ConfigScreen(
 
             Button(
                 onClick = onNavigateToGameScreen,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                colors = ButtonDefaults.buttonColors(containerColor = DeepWhite),
                 modifier = Modifier.padding(8.dp)
             ) {
                 Text(

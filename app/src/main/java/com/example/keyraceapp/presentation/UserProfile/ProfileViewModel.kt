@@ -49,8 +49,15 @@ class ProfileViewModel @Inject constructor(
 
             launch {
                 val flow = when(mode) {
-                    is GameMode.Training ->  scoreRepository.getTopTenTraining() as Flow<Resource<List<Score>>>
-                    is GameMode.Arcade -> scoreRepository.getTopTenArcade() as Flow<Resource<List<Score>>>
+                    is GameMode.Training ->  {
+                        state = state.copy(isTraining = true)
+                        scoreRepository.getTopTenTraining() as Flow<Resource<List<Score>>>
+                    }
+
+                    is GameMode.Arcade -> {
+                        state = state.copy(isTraining = false)
+                        scoreRepository.getTopTenArcade() as Flow<Resource<List<Score>>>
+                    }
                 }
 
                 flow

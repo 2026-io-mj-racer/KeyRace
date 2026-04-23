@@ -44,6 +44,13 @@ class ScoreRepositoryImpl(
                 val result = arcadeScoreDao
                     .getTopTenScores()
                     .map { it.toArcadeScore()}
+                //MOCK DATA TO SEE THE UI
+/*                val result: List<Score.ArcadeScore> = listOf(
+                    Score.ArcadeScore(wpm = 50f, acc = 100f, points = 300),
+                    Score.ArcadeScore(wpm = 20f, acc = 100f, points = 160),
+                    Score.ArcadeScore(wpm = 10f, acc = 98f, points = 160),
+                )*/
+
 
 
                 emit(Resource.Success(result))
