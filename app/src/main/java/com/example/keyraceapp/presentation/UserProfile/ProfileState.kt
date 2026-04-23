@@ -7,6 +7,7 @@ import com.example.keyraceapp.domain.models.User
 data class ProfileState(
     val topWpm: Float = 0f,
     val topScores: List<Score> = emptyList(),
+    val isTraining: Boolean = true,
     val wordsTyped: Long = 0,
     val gamesPlayed: Long = 0,
     val user: User = User("Unknown"),
