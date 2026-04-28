@@ -7,14 +7,18 @@ data class GameState(
     val status: GameStatus? = null,
     val lives: Int?  = null,
     val fallingSpeed: Float? = null,
-    val typedText: String? = null,
-    val targetText: String? = null,
+    val typedText: String = "",
+    val currentWordBox: Int = 0,
+    val allWords: List<String>? = null,
     val mistakesMade: Int? = null,
     val correctWords: Int? = null,
     val elapsedTime: Long? = null,
     val currentWpm: Float? = null,
     val currentAcc: Float? = null,
-    val points: Long? = null
+    val points: Long? = null,
+    val isLoading: Boolean = true,
+    val errorMessage: String? = null
+
 
 )
 

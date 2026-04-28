@@ -23,6 +23,7 @@ roomRuntime = "2.8.4"
 striktCore = "0.35.1"
 appcompat = "1.7.1"
 material3 = "1.4.0"
+foundationLayout = "1.11.0"
 
 [libraries]
 androidx = { module = "anrdoidx:androidx", version.ref = "androidx" }
