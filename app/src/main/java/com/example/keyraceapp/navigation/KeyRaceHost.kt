@@ -68,6 +68,9 @@ fun KeyRaceHost(
                         GameEvent.OnChangeText(value)
                     )
                 },
+                onPauseGame = {gameViewModel.onEvent(GameEvent.OnPauseGame)},
+                onResumeGame = {gameViewModel.onEvent(GameEvent.OnResumeGame)},
+                onRestartGame = {gameViewModel.onEvent(GameEvent.OnRestartGame)},
                 gameState = gameViewModel.gameState,
             )
         }

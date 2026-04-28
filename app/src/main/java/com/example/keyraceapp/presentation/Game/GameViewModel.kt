@@ -1,5 +1,7 @@
 package com.example.keyraceapp.presentation.Game
 
+import android.R.attr.text
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -58,54 +60,47 @@ class GameViewModel @Inject constructor(
 
     }
     private fun updateTyping(text: String) {
+        //TODO: Add queue to handle all of the events and add rate limiting
+        //TODO: why because if user bursts game will crash
+        val box = gameState.allWords?.get(gameState.currentWordBox)!!
+        val boxLen = box.length
 
-        //TODO: How to update mistakesMAde and correct Words when user backspaces?
-        //TODO: SOLVE: When to update mistakes and words after typing the five or during
+        val userTypedSpaceTwoTimesInARow = !(text.isEmpty() || text[text.length - 1] != ' ' || box[text.length - 1] == ' ')
+        val userTypedLetterOnSpace = text.isNotEmpty() && text[text.length - 1] != ' ' && box[text.length - 1] == ' '
 
-        val boxLen = gameState.allWords?.get(gameState.currentWordBox)?.length ?: 0
+        if (!userTypedSpaceTwoTimesInARow) {
+            if(text.contains(' ')&& text.length == boxLen - 1) {
 
-        if(text.length == boxLen - 1) {
+                val wordsTyped = text.split(" ")
+                val wordsInBox = box.trim().split(" ")
+                Log.d("HERE BOX LEN AND TEXT LEN", "$wordsTyped\n$wordsInBox")
+                var mistakesCnt = 0
+                var correctWordsCount = 0
 
-            var lastWordCorrect = 0
-            val targetText = gameState.allWords!![gameState.currentWordBox]
+                for((index, word) in wordsTyped.withIndex()) {
 
-            if(text[text.length - 1] == targetText[text.length - 1]) {
-                lastWordCorrect = 1
+                    if(word == wordsInBox[index]) {
+                        correctWordsCount++
+                    } else {
+                        for((idx, letter) in word.withIndex()) {
+                            if(letter != wordsInBox[index][idx]) {
+                                mistakesCnt++
+                            }
+                        }
+                    }
+                }
+                gameState = gameState.copy(
+                    mistakesMade = (gameState.mistakesMade ?: 0) + mistakesCnt,
+                    correctWords = (gameState.correctWords ?: 0) + correctWordsCount,
+                    currentWordBox = gameState.currentWordBox + 1,
+                    typedText = "",
+                )
+
+            } else if(!userTypedLetterOnSpace) {
+                gameState = gameState.copy(
+                    typedText = text
+                )
             }
-
-            gameState = gameState.copy(
-                mistakesMade = (gameState.mistakesMade ?: 0) + lastWordCorrect - 1,
-                correctWords = (gameState.correctWords ?: 0) + lastWordCorrect,
-                currentWordBox = gameState.currentWordBox + 1,
-                typedText = "",
-            )
-
-        } else if(text.isNotEmpty()) {
-            gameState = gameState.copy(
-                typedText = text
-            )
-
-            val targetText = gameState.allWords!![gameState.currentWordBox]
-            var mistakesMade = 0
-            var correctWords = 0
-            val typedText = gameState.typedText
-            val length = typedText.length
-
-            if(targetText[length - 1] != typedText[length - 1]) {
-                mistakesMade++
-            }
-            if(typedText[length - 1] == ' ' && targetText[length - 1] == ' ') {
-                correctWords++
-            }
-
-            gameState = gameState.copy(
-                mistakesMade = mistakesMade + (gameState.mistakesMade ?: 0),
-                correctWords = correctWords + (gameState.correctWords ?: 0)
-            )
-        } else {
-            gameState = gameState.copy(
-                typedText = text
-            )
         }
     }
 
