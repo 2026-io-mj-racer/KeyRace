@@ -36,6 +36,7 @@ fun KeyRaceHost(
                     navController.navigate(route = Profile)
                 },
                 onNavigateToGameScreen = {
+                    gameViewModel.onEvent(GameEvent.OnStartGame)
                     navController.navigate(route = Game)
 
                 },
@@ -60,7 +61,18 @@ fun KeyRaceHost(
         }
 
         composable<Game> {
-            GameScreen(onNavigateBack = {navController.popBackStack()})
+            GameScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onUpdateTyping = { value ->
+                    gameViewModel.onEvent(
+                        GameEvent.OnChangeText(value)
+                    )
+                },
+                onPauseGame = {gameViewModel.onEvent(GameEvent.OnPauseGame)},
+                onResumeGame = {gameViewModel.onEvent(GameEvent.OnResumeGame)},
+                onRestartGame = {gameViewModel.onEvent(GameEvent.OnRestartGame)},
+                gameState = gameViewModel.gameState,
+            )
         }
 
     }

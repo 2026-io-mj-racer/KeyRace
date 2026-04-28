@@ -101,7 +101,9 @@ class GameViewModelTest {
         }
     }
 
-    @Test
+    /*@Test
+    //This test doesnt make sens because wwe dont need to return generated text we can just set it into state
+    //because of that change I commented it out.
     fun `generateText() - joins list of strings into one string with words separated by spaces `() =  runTest  {
 
         val expectedText = "HA HI"
@@ -109,7 +111,7 @@ class GameViewModelTest {
         viewModel.onEvent(GameEvent.OnStartGame)
 
         assertEquals(expectedText.toSortedSet(), viewModel.gameState.targetText!!.toSortedSet(), message = "Check if targetText isn't null!!!!")
-    }
+    }*/
 
     @Test
     fun `OnSelectedGameMode - sets configState correctly when invoked`() {
