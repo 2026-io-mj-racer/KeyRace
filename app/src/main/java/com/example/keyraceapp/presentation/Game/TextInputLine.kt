@@ -1,6 +1,5 @@
 package com.example.keyraceapp.presentation.Game
 
-import android.R.attr.x
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -24,6 +23,7 @@ fun TextInputLine(targetText: String,typedText: String, startIndex: Int, lineTar
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxWidth()
     ) {
+
         for((index, value) in lineTargetText.withIndex()) {
             val relativeIndex = startIndex + index
 

@@ -8,9 +8,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.keyraceapp.domain.models.GameMode
+import com.example.keyraceapp.domain.models.GameStatus
 import com.example.keyraceapp.domain.models.Score
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
+import com.example.keyraceapp.navigation.Game
 import com.example.keyraceapp.util.Resource
 import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,35 +35,54 @@ class GameViewModel @Inject constructor(
     private var startTime: Long? = null
     private var accumulatedTime: Long? = null
 
-    private var mistakesPos = ArrayList<Int>()
-
     fun onEvent(event: GameEvent) {
         when(event) {
-            is GameEvent.OnSelectedGameMode -> selectGameMode(event.gameMode)
+            is GameEvent.OnSelectedGameMode -> {
+                selectGameMode(event.gameMode)
+            }
             is GameEvent.OnStartGame -> {
                 viewModelScope.launch {
+
+                    if(gameState != GameState()) {
+                        gameState = GameState()
+                    }
+
                     generateText()
-                    //think what needs to go here probably startGame()
                 }
             }
-            is GameEvent.OnChangeText -> {
+            is GameEvent.OnChangeText -> viewModelScope.launch {
                 updateTyping(event.text)
             }
-            else -> {}
+            is GameEvent.OnPauseGame -> pauseGame()
+            is GameEvent.OnResumeGame -> resumeGame()
+            is GameEvent.OnRestartGame, is GameEvent.OnPlayAgain -> viewModelScope.launch {
+                restartGame()
+            }
         }
     }
-    private fun restartGame() {
+    private suspend fun restartGame() {
+        gameState = GameState()
+        generateText()
+
 
     }
     private fun hasTimePassed(): Boolean {
        return false
     }
-    private fun startGame() {
+    private fun checkAndStartGame(text: String) {
+        if(text.length == 1 && gameState.status == null) {
+            gameState = gameState.copy(status = GameStatus.PLAYING)
+        }
 
     }
-    private fun updateTyping(text: String) {
+
+    private suspend fun updateTyping(text: String) {
         //TODO: Add queue to handle all of the events and add rate limiting
         //TODO: why because if user bursts game will crash
+
+        //STARTING
+        checkAndStartGame(text)
+
         val box = gameState.allWords?.get(gameState.currentWordBox)!!
         val boxLen = box.length
 
@@ -73,7 +94,6 @@ class GameViewModel @Inject constructor(
 
                 val wordsTyped = text.split(" ")
                 val wordsInBox = box.trim().split(" ")
-                Log.d("HERE BOX LEN AND TEXT LEN", "$wordsTyped\n$wordsInBox")
                 var mistakesCnt = 0
                 var correctWordsCount = 0
 
@@ -95,6 +115,12 @@ class GameViewModel @Inject constructor(
                     currentWordBox = gameState.currentWordBox + 1,
                     typedText = "",
                 )
+                //FINISHING
+
+                //so if we are in TIME BASED MODE we can finish when the box number is WORDS / 5
+                //if we are in time we need to check the time
+                checkAndFinishGame()
+
 
             } else if(!userTypedLetterOnSpace) {
                 gameState = gameState.copy(
@@ -103,12 +129,15 @@ class GameViewModel @Inject constructor(
             }
         }
     }
-
     private fun resumeGame() {
-
+        if(gameState.status == GameStatus.PAUSED) {
+            gameState = gameState.copy(status = GameStatus.PLAYING)
+        }
     }
     private fun pauseGame() {
-
+        if(gameState.status == GameStatus.PLAYING) {
+            gameState = gameState.copy(status = GameStatus.PAUSED)
+        }
     }
     private suspend fun saveResult() {
         val score: Score = Score.buildScore(gameState, configState)
@@ -123,44 +152,58 @@ class GameViewModel @Inject constructor(
             gameMode = mode
         )
     }
-    private fun finishGame(clock: Long) {
+    private suspend fun checkAndFinishGame(clock: Long? = null) {
+        when(val mode = configState.gameMode) {
+            is GameMode.Training.WordBased -> {
+                val wordCount = mode.wordCount.value.toLong()
 
+                if(wordCount / 5 == gameState.currentWordBox.toLong()) {
+                    gameState = gameState.copy(status = GameStatus.FINISHED)
+                    saveResult()
+                }
+            }
+            else -> {}
+        }
     }
     private fun startTicker() {
-
     }
     private suspend fun generateText() {
 
-        wordRepository.getWords()
-            .catch{e -> gameState = gameState.copy(errorMessage = e.message)}
-            .collect { response ->
-            when (response) {
-                is Resource.Success -> {
+        if(gameState.allWords != null) {
+            gameState  =gameState.copy(allWords = gameState.allWords!!.shuffled())
+        } else {
+            wordRepository.getWords()
+                .catch{e -> gameState = gameState.copy(errorMessage = e.message)}
+                .collect { response ->
+                    when (response) {
+                        is Resource.Success -> {
 
-                    val shuffledWordList = response.data!!.shuffled()
-                    val allWordsList = mutableListOf<String>()
-                    var i = 0
-                    while(i < shuffledWordList.size) {
+                            val shuffledWordList = response.data!!.shuffled()
+                            val allWordsList = mutableListOf<String>()
+                            var i = 0
+                            while(i < shuffledWordList.size) {
 
-                        val fiveWords: StringBuilder = StringBuilder("")
-                        for(j in 0..4) {
-                            fiveWords
-                                .append(shuffledWordList[j + i])
-                                .append(" ")
+                                val fiveWords: StringBuilder = StringBuilder("")
+                                for(j in 0..4) {
+                                    fiveWords
+                                        .append(shuffledWordList[j + i])
+                                        .append(" ")
+                                }
+
+                                allWordsList.add(fiveWords.toString())
+                                i += 5;
+                            }
+
+                            gameState = gameState.copy(
+                                currentWordBox = 0,
+                                allWords = allWordsList
+                            )
                         }
-
-                        allWordsList.add(fiveWords.toString())
-                        i += 5;
+                        is Resource.Error, is Resource.Loading -> stateUpdaterLoadingOrError(response)
                     }
-
-                    gameState = gameState.copy(
-                        currentWordBox = 0,
-                        allWords = allWordsList
-                    )
                 }
-                is Resource.Error, is Resource.Loading -> stateUpdaterLoadingOrError(response)
-            }
         }
+
     }
     private fun<T> stateUpdaterLoadingOrError(value: Resource<T>) {
         gameState = when(value) {
