@@ -1,7 +1,5 @@
 package com.example.keyraceapp.presentation.Game
 
-import android.R.attr.text
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,7 +10,6 @@ import com.example.keyraceapp.domain.models.GameStatus
 import com.example.keyraceapp.domain.models.Score
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
-import com.example.keyraceapp.navigation.Game
 import com.example.keyraceapp.util.Resource
 import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
