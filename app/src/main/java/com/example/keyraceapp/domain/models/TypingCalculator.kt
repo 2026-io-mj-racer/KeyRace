@@ -2,6 +2,7 @@ package com.example.keyraceapp.domain.models
 
 import java.math.BigDecimal
 import java.math.RoundingMode
+import kotlin.math.round
 
 object TypingCalculator {
     fun computePoints(len: Int, difficulty: Difficulty, wpm: Float, acc: Float): Long {
@@ -20,15 +21,16 @@ object TypingCalculator {
         return (len * multiplier + (accPercent * (wpm / 10))).toLong()
     }
     fun computeWpm(elapsedTime: Float, length: Int): Float  {
-        if(elapsedTime < 0 || length < 0) return 0f
+        if(elapsedTime <= 0 || length <= 0) return 0f
 
-        val timeInSeconds: Double = elapsedTime / 60.0
-        val wordNumber: Double = length / 5.0
+        val timeInMinutes: Double = (elapsedTime / 1000.0)  / 60.0
+        val wordCount: Double = length / 5.0
 
+        val wpm = wordCount / timeInMinutes
 
-       return BigDecimal(wordNumber / timeInSeconds)
-           .setScale(2, RoundingMode.HALF_EVEN)
-           .toFloat()
+        return BigDecimal(wordCount / timeInMinutes)
+            .setScale(2, RoundingMode.HALF_EVEN)
+            .toFloat()
     }
 
     fun computeAcc(length: Int, mistakesMade: Int): Float {

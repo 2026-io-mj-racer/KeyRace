@@ -1,5 +1,8 @@
 package com.example.keyraceapp.presentation.Game
 
+import android.R.attr.text
+import android.util.Half.toFloat
+import android.util.Log
 import android.util.Log.e
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.keyraceapp.domain.models.GameMode
 import com.example.keyraceapp.domain.models.GameStatus
 import com.example.keyraceapp.domain.models.Score
+import com.example.keyraceapp.domain.models.TypingCalculator
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
 import com.example.keyraceapp.navigation.Game
@@ -73,7 +77,12 @@ class GameViewModel @Inject constructor(
     }
     private fun checkAndStartGame(text: String) {
         if(text.length == 1 && gameState.status == null) {
-            gameState = gameState.copy(status = GameStatus.PLAYING)
+            startTime = timeProvider.now()
+            gameState = gameState.copy(
+                status = GameStatus.PLAYING,
+                elapsedTime = 0L,
+                lenOverall = 0L
+            )
         }
     }
 
@@ -112,13 +121,17 @@ class GameViewModel @Inject constructor(
                         }
                     }
 
+
                     gameState = gameState.copy(
                         mistakesMade = (gameState.mistakesMade ?: 0) + mistakesCnt,
                         correctWords = (gameState.correctWords ?: 0) + correctWordsCount,
                         currentWordBox = gameState.currentWordBox + 1,
+                        lenOverall = (gameState.lenOverall ?: 0L) + text.length,
+                        elapsedTime = timeProvider.now() - startTime!!,
                         typedText = "",
                     )
 
+                    computeAccAndWpm()
                     checkAndFinishGame()
 
                 } else if(!userTypedLetterOnSpace) {
@@ -127,6 +140,29 @@ class GameViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    private fun computeAccAndWpm() {
+        viewModelScope.launch {
+
+
+            val acc = TypingCalculator.computeAcc(
+                length = gameState.lenOverall!!.toInt(),
+                mistakesMade = gameState.mistakesMade!!
+            )
+            val wpm = TypingCalculator.computeWpm(
+                elapsedTime = gameState.elapsedTime!!.toFloat(),
+                length = gameState.lenOverall!!.toInt()
+            )
+
+            val prevAvgWpm = gameState.currentWpm ?: 0f
+            val avgWpm = ((gameState.currentWordBox - 1) * prevAvgWpm + wpm ) / (gameState.currentWordBox)
+
+            gameState = gameState.copy(
+                currentWpm = avgWpm,
+                currentAcc = acc
+            )
         }
     }
     private fun resumeGame() {

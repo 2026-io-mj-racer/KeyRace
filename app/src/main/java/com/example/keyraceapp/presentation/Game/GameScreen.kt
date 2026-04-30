@@ -1,5 +1,6 @@
 package com.example.keyraceapp.presentation.Game
 
+import android.R.attr.onClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -64,6 +65,12 @@ fun GameScreen(
                        style = MaterialTheme.typography.titleLarge,
                        modifier = Modifier.padding(16.dp)
                    )
+
+                   Text(
+                       "TIME",
+                       style = MaterialTheme.typography.titleLarge,
+                       modifier = Modifier.padding(16.dp)
+                   )
                }
                Row(
                    verticalAlignment = Alignment.CenterVertically,
@@ -77,6 +84,10 @@ fun GameScreen(
 
                    Text(
                        text = "${gameState.currentAcc}",
+                       modifier = Modifier.padding(16.dp)
+                   )
+                   Text(
+                       text = "${gameState.elapsedTime?.div(1000f)}s",
                        modifier = Modifier.padding(16.dp)
                    )
                }
