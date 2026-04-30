@@ -13,7 +13,9 @@ import com.example.keyraceapp.domain.repositories.WordRepository
 import com.example.keyraceapp.util.Resource
 import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -77,7 +79,6 @@ class GameViewModel @Inject constructor(
         //TODO: Add queue to handle all of the events and add rate limiting
         //TODO: why because if user bursts game will crash
 
-        //STARTING
         checkAndStartGame(text)
 
         val box = gameState.allWords?.get(gameState.currentWordBox)!!
@@ -113,9 +114,6 @@ class GameViewModel @Inject constructor(
                     typedText = "",
                 )
                 //FINISHING
-
-                //so if we are in TIME BASED MODE we can finish when the box number is WORDS / 5
-                //if we are in time we need to check the time
                 checkAndFinishGame()
 
 
@@ -149,14 +147,18 @@ class GameViewModel @Inject constructor(
             gameMode = mode
         )
     }
-    private suspend fun checkAndFinishGame(clock: Long? = null) {
+    private fun checkAndFinishGame(clock: Long? = null) {
         when(val mode = configState.gameMode) {
             is GameMode.Training.WordBased -> {
-                val wordCount = mode.wordCount.value.toLong()
 
+                val wordCount = mode.wordCount.value.toLong()
                 if(wordCount / 5 == gameState.currentWordBox.toLong()) {
+
                     gameState = gameState.copy(status = GameStatus.FINISHED)
-                    saveResult()
+
+                    viewModelScope.launch(Dispatchers.IO) {
+                        saveResult()
+                    }
                 }
             }
             else -> {}
