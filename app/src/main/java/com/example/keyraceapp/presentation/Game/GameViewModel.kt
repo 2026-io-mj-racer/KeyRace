@@ -1,5 +1,6 @@
 package com.example.keyraceapp.presentation.Game
 
+import android.util.Log.e
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +11,7 @@ import com.example.keyraceapp.domain.models.GameStatus
 import com.example.keyraceapp.domain.models.Score
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
+import com.example.keyraceapp.navigation.Game
 import com.example.keyraceapp.util.Resource
 import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,6 +49,7 @@ class GameViewModel @Inject constructor(
                     }
 
                     generateText()
+
                 }
             }
             is GameEvent.OnChangeText -> viewModelScope.launch {
@@ -72,55 +75,57 @@ class GameViewModel @Inject constructor(
         if(text.length == 1 && gameState.status == null) {
             gameState = gameState.copy(status = GameStatus.PLAYING)
         }
-
     }
 
-    private suspend fun updateTyping(text: String) {
+    private  fun updateTyping(text: String) {
         //TODO: Add queue to handle all of the events and add rate limiting
         //TODO: why because if user bursts game will crash
 
         checkAndStartGame(text)
 
-        val box = gameState.allWords?.get(gameState.currentWordBox)!!
-        val boxLen = box.length
+        if(gameState.status == GameStatus.PLAYING) {
+            val box = gameState.allWords?.get(gameState.currentWordBox)!!
+            val boxLen = box.length
 
-        val userTypedSpaceTwoTimesInARow = !(text.isEmpty() || text[text.length - 1] != ' ' || box[text.length - 1] == ' ')
-        val userTypedLetterOnSpace = text.isNotEmpty() && text[text.length - 1] != ' ' && box[text.length - 1] == ' '
+            val userTypedSpaceTwoTimesInARow = !(text.isEmpty() || text[text.length - 1] != ' ' || box[text.length - 1] == ' ')
+            val userTypedLetterOnSpace = text.isNotEmpty() && text[text.length - 1] != ' ' && box[text.length - 1] == ' '
 
-        if (!userTypedSpaceTwoTimesInARow) {
-            if(text.contains(' ')&& text.length == boxLen - 1) {
 
-                val wordsTyped = text.split(" ")
-                val wordsInBox = box.trim().split(" ")
-                var mistakesCnt = 0
-                var correctWordsCount = 0
+            if (!userTypedSpaceTwoTimesInARow) {
+                if(text.contains(' ') && text.length == boxLen - 1) {
 
-                for((index, word) in wordsTyped.withIndex()) {
+                    val wordsTyped = text.split(" ")
+                    val wordsInBox = box.trim().split(" ")
+                    var mistakesCnt = 0
+                    var correctWordsCount = 0
 
-                    if(word == wordsInBox[index]) {
-                        correctWordsCount++
-                    } else {
-                        for((idx, letter) in word.withIndex()) {
-                            if(letter != wordsInBox[index][idx]) {
-                                mistakesCnt++
+                    for((index, word) in wordsTyped.withIndex()) {
+
+                        if(word == wordsInBox[index]) {
+                            correctWordsCount++
+                        } else {
+                            for((idx, letter) in word.withIndex()) {
+                                if(letter != wordsInBox[index][idx]) {
+                                    mistakesCnt++
+                                }
                             }
                         }
                     }
+
+                    gameState = gameState.copy(
+                        mistakesMade = (gameState.mistakesMade ?: 0) + mistakesCnt,
+                        correctWords = (gameState.correctWords ?: 0) + correctWordsCount,
+                        currentWordBox = gameState.currentWordBox + 1,
+                        typedText = "",
+                    )
+
+                    checkAndFinishGame()
+
+                } else if(!userTypedLetterOnSpace) {
+                    gameState = gameState.copy(
+                        typedText = text
+                    )
                 }
-                gameState = gameState.copy(
-                    mistakesMade = (gameState.mistakesMade ?: 0) + mistakesCnt,
-                    correctWords = (gameState.correctWords ?: 0) + correctWordsCount,
-                    currentWordBox = gameState.currentWordBox + 1,
-                    typedText = "",
-                )
-                //FINISHING
-                checkAndFinishGame()
-
-
-            } else if(!userTypedLetterOnSpace) {
-                gameState = gameState.copy(
-                    typedText = text
-                )
             }
         }
     }
@@ -151,11 +156,11 @@ class GameViewModel @Inject constructor(
         when(val mode = configState.gameMode) {
             is GameMode.Training.WordBased -> {
 
+
                 val wordCount = mode.wordCount.value.toLong()
                 if(wordCount / 5 == gameState.currentWordBox.toLong()) {
 
                     gameState = gameState.copy(status = GameStatus.FINISHED)
-
                     viewModelScope.launch(Dispatchers.IO) {
                         saveResult()
                     }
@@ -169,7 +174,7 @@ class GameViewModel @Inject constructor(
     private suspend fun generateText() {
 
         if(gameState.allWords != null) {
-            gameState  =gameState.copy(allWords = gameState.allWords!!.shuffled())
+            gameState = gameState.copy(allWords = gameState.allWords!!.shuffled())
         } else {
             wordRepository.getWords()
                 .catch{e -> gameState = gameState.copy(errorMessage = e.message)}
