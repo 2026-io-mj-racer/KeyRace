@@ -24,6 +24,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
+import java.math.RoundingMode
 import javax.inject.Inject
 
 
@@ -101,30 +103,13 @@ class GameViewModel @Inject constructor(
 
 
             if (!userTypedSpaceTwoTimesInARow) {
-                if(text.contains(' ') && text.length == boxLen - 1) {
+                if(text.length == boxLen - 1) {
 
-                    val wordsTyped = text.split(" ")
-                    val wordsInBox = box.trim().split(" ")
-                    var mistakesCnt = 0
-                    var correctWordsCount = 0
-
-                    for((index, word) in wordsTyped.withIndex()) {
-
-                        if(word == wordsInBox[index]) {
-                            correctWordsCount++
-                        } else {
-                            for((idx, letter) in word.withIndex()) {
-                                if(letter != wordsInBox[index][idx]) {
-                                    mistakesCnt++
-                                }
-                            }
-                        }
-                    }
-
+                    val (mistakesCnt, correctWordsCnt) = countMistakesAndCorrectWords(text, box)
 
                     gameState = gameState.copy(
                         mistakesMade = (gameState.mistakesMade ?: 0) + mistakesCnt,
-                        correctWords = (gameState.correctWords ?: 0) + correctWordsCount,
+                        correctWords = (gameState.correctWords ?: 0) + correctWordsCnt,
                         currentWordBox = gameState.currentWordBox + 1,
                         lenOverall = (gameState.lenOverall ?: 0L) + text.length,
                         elapsedTime = timeProvider.now() - startTime!!,
@@ -143,6 +128,29 @@ class GameViewModel @Inject constructor(
         }
     }
 
+    private fun countMistakesAndCorrectWords(text: String, box: String): Pair<Int, Int> {
+
+        val wordsTyped = text.split(" ")
+        val wordsInBox = box.trim().split(" ")
+        var mistakesCnt = 0
+        var correctWordsCount = 0
+
+        for((index, word) in wordsTyped.withIndex()) {
+
+            if(word == wordsInBox[index]) {
+                correctWordsCount++
+            } else {
+                for((idx, letter) in word.withIndex()) {
+                    if(letter != wordsInBox[index][idx]) {
+                        mistakesCnt++
+                    }
+                }
+            }
+        }
+
+        return Pair(mistakesCnt, correctWordsCount)
+    }
+
     private fun computeAccAndWpm() {
         viewModelScope.launch {
 
@@ -157,7 +165,12 @@ class GameViewModel @Inject constructor(
             )
 
             val prevAvgWpm = gameState.currentWpm ?: 0f
-            val avgWpm = ((gameState.currentWordBox - 1) * prevAvgWpm + wpm ) / (gameState.currentWordBox)
+            var avgWpm = ((gameState.currentWordBox - 1) * prevAvgWpm + wpm ) / (gameState.currentWordBox)
+
+            avgWpm = BigDecimal(avgWpm.toDouble())
+                                    .setScale(2, RoundingMode.HALF_EVEN)
+                                    .toFloat()
+
 
             gameState = gameState.copy(
                 currentWpm = avgWpm,
