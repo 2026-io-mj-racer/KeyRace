@@ -14,23 +14,23 @@ import kotlin.test.assertEquals
 class TypingCalculatorTest {
 
    @Test
-    fun `WPM - should return 40 when length is 100 and time is 30`() {
-        val result = TypingCalculator.computeWpm(30f, 100)
+    fun `WPM - should return 40 when length is 100 and time is 30000`() {
+        val result = TypingCalculator.computeWpm(30000f, 100)
         assertEquals(40f, result)
     }
     @Test
-    fun `WPM - should return 60 when length is 500 and time is 100`() {
-        val result = TypingCalculator.computeWpm(100f, 500)
+    fun `WPM - should return 60 when length is 500 and time is 100000`() {
+        val result = TypingCalculator.computeWpm(100000f, 500)
         assertEquals(60f, result)
     }
     @Test
-    fun `WPM - should return 49,20 when length is 123 and time is 30`() {
-        val result = TypingCalculator.computeWpm(30f, 123)
+    fun `WPM - should return 49,20 when length is 123 and time is 30000`() {
+        val result = TypingCalculator.computeWpm(30000f, 123)
         assertEquals(49.20f, result)
     }
     @Test
-    fun `WPM - should return 57,17 when length is 111 and time is 23,3`() {
-        val result = TypingCalculator.computeWpm(23.3f, 111)
+    fun `WPM - should return 57,17 when length is 111 and time is 23300`() {
+        val result = TypingCalculator.computeWpm(23300f, 111)
         assertEquals(57.17f, result)
     }
     @Test
