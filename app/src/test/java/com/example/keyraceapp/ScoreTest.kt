@@ -16,7 +16,6 @@ class ScoreTest {
         val gameState = GameState(
             status = GameStatus.FINISHED,
             typedText = "ABCD EFG",
-            targetText = "ABCD EFH",
             mistakesMade = 1,
             correctWords = 1,
             currentAcc = 0.86f,

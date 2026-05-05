@@ -71,6 +71,7 @@ fun KeyRaceHost(
                 onPauseGame = {gameViewModel.onEvent(GameEvent.OnPauseGame)},
                 onResumeGame = {gameViewModel.onEvent(GameEvent.OnResumeGame)},
                 onRestartGame = {gameViewModel.onEvent(GameEvent.OnRestartGame)},
+                onPlayAgain = {gameViewModel.onEvent(GameEvent.OnPlayAgain)},
                 gameState = gameViewModel.gameState,
             )
         }

@@ -1,5 +1,9 @@
 package com.example.keyraceapp
 
+import android.icu.lang.UCharacter.JoiningGroup.HE
+import android.util.Log.e
+import android.util.Log.i
+import androidx.compose.ui.input.key.Key.Companion.D
 import com.example.keyraceapp.domain.models.Difficulty
 import com.example.keyraceapp.domain.models.GameMode
 import com.example.keyraceapp.domain.models.GameStatus
@@ -13,13 +17,18 @@ import com.example.keyraceapp.presentation.Game.GameState
 import com.example.keyraceapp.presentation.Game.GameViewModel
 import com.example.keyraceapp.util.Resource
 import com.example.keyraceapp.util.TimeProvider
+import io.mockk.Runs
 import io.mockk.coEvery
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -29,6 +38,7 @@ import org.junit.Before
 import org.junit.Test
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
+import kotlin.coroutines.EmptyCoroutineContext.get
 import kotlin.test.assertEquals
 
 class FakeTimeProvider: TimeProvider {
@@ -45,7 +55,7 @@ class GameViewModelTest {
     private val timeProvider = FakeTimeProvider()
     private val testDispatcher = StandardTestDispatcher()
     val exampleTimeMode = GameMode.Training.TimeBased(TimePeriod.THIRTY_SECONDS)
-    val exampleWordMode = GameMode.Training.WordBased(WordCount.THIRTY_WORDS)
+    val exampleWordMode = GameMode.Training.WordBased(WordCount.TEN_WORDS)
 
     @Before
     fun setup() {
@@ -57,7 +67,8 @@ class GameViewModelTest {
             timeProvider =  timeProvider
         )
 
-        coEvery { wordRepository.getWords() } returns flowOf(Resource.Success(listOf("HA", "HI")))
+        coEvery { wordRepository.getWords() } returns flowOf(Resource.Success(listOf("HA", "HI", "HO", "HU", "HE", "A", "B", "C", "D", "E")))
+
     }
 
     @After
@@ -68,11 +79,11 @@ class GameViewModelTest {
     fun `restartGame() - TIMEBASED - set state into initial values except the target text after restart`() = runTest {
 
         val expectedGameState = GameState(
-            targetText = "HA HI",
+            currentWordBox = 0,
             elapsedTime = 0,
             correctWords = 0,
             mistakesMade = 0,
-            status = GameStatus.PLAYING,
+            status = null,
             typedText = "",
         )
         viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleTimeMode))
@@ -87,7 +98,7 @@ class GameViewModelTest {
 
         //assert one by one because of converting targetText to sortedSet
         expectThat(viewModel.gameState) {
-            get {targetText!!.toSortedSet()}.isEqualTo(expectedGameState.targetText!!.toSortedSet())
+            get {currentWordBox}.isEqualTo(expectedGameState.currentWordBox)
             get {points }.isEqualTo(expectedGameState.points)
             get {fallingSpeed}.isEqualTo(expectedGameState.fallingSpeed)
             get {status}.isEqualTo(expectedGameState.status)
@@ -156,23 +167,13 @@ class GameViewModelTest {
 
     @Test
     fun `startGame() - sets each of the state values to GameState based on ConfigState when OnStartGame invoked`() = runTest {
-        val expectedGameState = GameState(
-            targetText = "HA HI",
-            elapsedTime = 0,
-            correctWords = 0,
-            mistakesMade = 0,
-            status = GameStatus.PLAYING,
-            typedText = "",
-        )
+        val expectedGameState = GameState()
         viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleTimeMode))
 
 
         viewModel.onEvent(GameEvent.OnStartGame)
 
-
-        //assert one by one because of converting targetText to sortedSet
         expectThat(viewModel.gameState) {
-            get {targetText!!.toSortedSet()}.isEqualTo(expectedGameState.targetText!!.toSortedSet())
             get {points }.isEqualTo(expectedGameState.points)
             get {fallingSpeed}.isEqualTo(expectedGameState.fallingSpeed)
             get {status}.isEqualTo(expectedGameState.status)
@@ -189,12 +190,19 @@ class GameViewModelTest {
     @Test
     fun `updateTyping() - updates correctly the number of mistakes and words typed when user makes only mistakes`() = runTest {
 
+        val expectedMistakes = 0
+        val expectedCorrectWords = 5
+
         viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleTimeMode))
         viewModel.onEvent(GameEvent.OnStartGame)
-        val expectedMistakes = 3
-        val expectedCorrectWords = 0
+        runCurrent()
 
-        viewModel.onEvent(GameEvent.OnChangeText("bla"))
+        val firstBucket = viewModel.gameState.allWords!![0]
+        viewModel.onEvent(GameEvent.OnChangeText(firstBucket[0].toString()))
+        runCurrent()
+
+        viewModel.onEvent(GameEvent.OnChangeText(firstBucket.take(firstBucket.length - 1)))
+        runCurrent()
 
         expectThat(viewModel.gameState) {
             get {mistakesMade}.isEqualTo(expectedMistakes)
@@ -203,15 +211,22 @@ class GameViewModelTest {
     }
     @Test
     fun `updateTyping() - updates correctly the number of mistakes and words typed when user type correct words`() = runTest {
+        val expectedMistakes = 1
+        val expectedCorrectWords = 4
+
         viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleTimeMode))
         viewModel.onEvent(GameEvent.OnStartGame)
-        val expectedMistakes = 0
-        val expectedCorrectWords = 1
-        val expectedTargetText = viewModel.gameState.targetText
+        runCurrent()
 
-        //WHY ADDING " " ??? because counting words after users TYPES THE SPACE!!!!!!!!!!!
-        viewModel.onEvent(GameEvent.OnChangeText(expectedTargetText!!.substringBefore(" ") + " "))
+        val userInput = StringBuilder(viewModel.gameState.allWords!![0])
+        userInput.deleteCharAt(0)
+        userInput.insert(0, "X")
 
+        viewModel.onEvent(GameEvent.OnChangeText(userInput[0].toString()))
+        runCurrent()
+
+        viewModel.onEvent(GameEvent.OnChangeText(userInput.take(userInput.length - 1).toString()))
+        runCurrent()
 
         expectThat(viewModel.gameState) {
             get {mistakesMade}.isEqualTo(expectedMistakes)
@@ -221,11 +236,15 @@ class GameViewModelTest {
 
 
     @Test
-    fun `pauseGame() - set status to PAUSED when OnGamePause invoked`() {
-        viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleTimeMode))
+    fun `pauseGame() - set status to PAUSED when OnGamePause invoked`() = runTest {
+        viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleWordMode))
         viewModel.onEvent(GameEvent.OnStartGame)
+        viewModel.onEvent(GameEvent.OnChangeText("x"))
+        runCurrent()
 
         viewModel.onEvent(GameEvent.OnPauseGame)
+        advanceUntilIdle()
+
 
         assertEquals(GameStatus.PAUSED, viewModel.gameState.status)
     }
@@ -247,12 +266,14 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `resumeGame() sets status to PLAYING when OnResume is invoked`() {
-        viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleTimeMode))
+    fun `resumeGame() sets status to PLAYING when OnResume is invoked`() = runTest {
+        viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleWordMode))
         viewModel.onEvent(GameEvent.OnStartGame)
+        viewModel.onEvent(GameEvent.OnChangeText("x"))
         viewModel.onEvent(GameEvent.OnPauseGame)
 
         viewModel.onEvent(GameEvent.OnResumeGame)
+        advanceUntilIdle()
 
         assertEquals(GameStatus.PLAYING, viewModel.gameState.status)
 
@@ -297,17 +318,28 @@ class GameViewModelTest {
 
     @Test
     fun `finishGame() - WORDBASED - game ends when all of words were typed by the user`() = runTest {
+        coEvery { scoreRepository.saveGame(any()) } returns Resource.Success(data = null)
+
         viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleWordMode))
         viewModel.onEvent(GameEvent.OnStartGame)
+        advanceUntilIdle()
 
-        viewModel.onEvent(GameEvent.OnChangeText("HA HI"))
+        val buckets = viewModel.gameState.allWords!!
+
+
+        viewModel.onEvent(GameEvent.OnChangeText(buckets[0][0].toString()))
+        advanceUntilIdle()
+        viewModel.onEvent(GameEvent.OnChangeText(buckets[0].take(buckets[0].length - 1)))
+        advanceUntilIdle()
+        viewModel.onEvent(GameEvent.OnChangeText(buckets[1].take(buckets[1].length - 1)))
+        advanceUntilIdle()
 
         assertEquals(GameStatus.FINISHED, viewModel.gameState.status)
     }
 
 
     @Test
-    fun `OnPlayAgain - game generates new text and puts it into playing mode, without starting the timer`() = runTest {
+    fun `OnPlayAgain - restarts stats and puts it into playing mode, without starting the timer`() = runTest {
         viewModel.onEvent(GameEvent.OnSelectedGameMode(exampleTimeMode))
         viewModel.onEvent(GameEvent.OnStartGame)
         runCurrent()
@@ -319,7 +351,6 @@ class GameViewModelTest {
 
         assertEquals(GameStatus.PLAYING, viewModel.gameState.status)
         assertEquals(0, viewModel.gameState.elapsedTime)
-        assertEquals("HA HI".toSortedSet(), viewModel.gameState.targetText!!.toSortedSet(), message = "Check if target text IS NOT NULL!!!")
     }
     @Test
     fun `finishGame() - ARCADE - game end when lives == 0`() = runTest {
@@ -347,5 +378,4 @@ class GameViewModelTest {
         assertEquals(2, viewModel.gameState.lives)
 
 
-    }
-}
+    }}

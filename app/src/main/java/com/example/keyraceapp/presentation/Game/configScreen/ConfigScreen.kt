@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,10 +44,12 @@ fun ConfigScreen(
                 .padding(paddingValues)
         ) {
 
-            val optionsWithHandlers = mapOf(
-                "TRAINING" to {onGameConfigSelected(GameMode.Training.TimeBased(TimePeriod.FIFTEEN_SECONDS))},
-                "ARCADE" to {onGameConfigSelected(GameMode.Arcade(Difficulty.EASY))}
-            )
+            val optionsWithHandlers = remember(onGameConfigSelected) {
+                mapOf(
+                    "TRAINING" to {onGameConfigSelected(GameMode.Training.TimeBased(TimePeriod.FIFTEEN_SECONDS))},
+                    "ARCADE" to {onGameConfigSelected(GameMode.Arcade(Difficulty.EASY))}
+                )
+            }
 
             GameModeSelectorRow(
                 selected = if (configState.gameMode is GameMode.Training) "TRAINING" else "ARCADE",
@@ -55,58 +58,15 @@ fun ConfigScreen(
 
             when(val mode = configState.gameMode) {
                 is GameMode.Training -> {
-                    val optionsWithHandlers = mapOf(
-                        "TIME" to {onGameConfigSelected(GameMode.Training.TimeBased(TimePeriod.FIFTEEN_SECONDS))},
-                        "WORDS" to {onGameConfigSelected(GameMode.Training.WordBased(WordCount.TEN_WORDS))}
+                    TrainingConfigSection(
+                        onGameConfigSelected = onGameConfigSelected,
+                        mode = mode,
                     )
 
-                    GameModeSelectorRow(
-                        selected = if(mode is GameMode.Training.TimeBased) "TIME" else "WORDS",
-                        optionsWithHandlers = optionsWithHandlers
-                    )
-
-                        when(mode) {
-                            is GameMode.Training.TimeBased -> {
-                                val optionsWithHandlers = mutableMapOf<String, () -> Unit>()
-
-                                for(period in enumValues<TimePeriod>()) {
-                                    optionsWithHandlers[period.toString()] = {
-                                        onGameConfigSelected(GameMode.Training.TimeBased(period))
-                                    }
-                                }
-
-                                GameModeSelectorColumn(
-                                    selected = mode.time.toString(),
-                                    optionsWithHandlers = optionsWithHandlers
-                                )
-                            }
-                            is GameMode.Training.WordBased -> {
-                                val optionsWithHandlers = mutableMapOf<String, () -> Unit>()
-
-                                for(count in enumValues<WordCount>()) {
-                                    optionsWithHandlers[count.toString()] = {
-                                        onGameConfigSelected(GameMode.Training.WordBased(count))
-                                    }
-                                }
-
-                                GameModeSelectorColumn(
-                                    selected = mode.wordCount.toString(),
-                                    optionsWithHandlers = optionsWithHandlers
-                                )
-                           }
-                    }
                 } is GameMode.Arcade -> {
-                    val optionsWithHandlers = mutableMapOf<String, () -> Unit>()
-
-                    for(difficulty in enumValues<Difficulty>()) {
-                        optionsWithHandlers[difficulty.toString()] = {
-                            onGameConfigSelected(GameMode.Arcade(difficulty))
-                        }
-                    }
-
-                    GameModeSelectorColumn(
-                        selected = mode.difficulty.toString(),
-                        optionsWithHandlers = optionsWithHandlers,
+                    ArcadeConfigSection(
+                        mode = mode,
+                        onGameConfigSelected = onGameConfigSelected
                     )
                 }
             }

@@ -9,6 +9,7 @@ data class GameState(
     val fallingSpeed: Float? = null,
     val typedText: String = "",
     val currentWordBox: Int = 0,
+    val lenOverall: Long? = null,
     val allWords: List<String>? = null,
     val mistakesMade: Int? = null,
     val correctWords: Int? = null,
