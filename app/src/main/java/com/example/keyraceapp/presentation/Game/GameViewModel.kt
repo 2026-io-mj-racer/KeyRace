@@ -1,9 +1,6 @@
 package com.example.keyraceapp.presentation.Game
 
-import android.R.attr.text
-import android.util.Half.toFloat
 import android.util.Log
-import android.util.Log.e
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,13 +12,13 @@ import com.example.keyraceapp.domain.models.Score
 import com.example.keyraceapp.domain.models.TypingCalculator
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
-import com.example.keyraceapp.navigation.Game
 import com.example.keyraceapp.util.Resource
 import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -59,7 +56,8 @@ class GameViewModel @Inject constructor(
                 }
             }
             is GameEvent.OnChangeText -> viewModelScope.launch {
-                updateTyping(event.text)
+                gameLoop(event.text)
+
             }
             is GameEvent.OnPauseGame -> pauseGame()
             is GameEvent.OnResumeGame -> resumeGame()
@@ -74,50 +72,79 @@ class GameViewModel @Inject constructor(
 
 
     }
-    private fun hasTimePassed(): Boolean {
-       return false
+    private suspend fun timer() {
+        val mode = configState.gameMode
+        if(mode is GameMode.Training.TimeBased) {
+
+            val targetTime = mode.time.value.toLong()
+
+            if(gameState.status == GameStatus.PLAYING) {
+
+                    while((gameState.elapsedTime!! / 1000L) < targetTime) {
+                        delay(100L)
+                        gameState = gameState.copy(elapsedTime = timeProvider.now() - startTime!!)
+                    }
+            }
+        }
+    }
+
+    private suspend fun gameLoop(text: String) {
+        while(gameState.status != GameStatus.FINISHED) {
+            coroutineScope {
+                launch { updateTyping(text) }
+
+                launch { timer() }
+            }
+        }
     }
     private fun checkAndStartGame(text: String) {
         if(text.length == 1 && gameState.status == null) {
+
             startTime = timeProvider.now()
             gameState = gameState.copy(
                 status = GameStatus.PLAYING,
                 elapsedTime = 0L,
-                lenOverall = 0L
+                lenOverall = 0L,
+                mistakesMade = 0,
+                correctWords = 0
             )
         }
     }
-
-    private  fun updateTyping(text: String) {
+    private fun updateTyping(text: String) {
         //TODO: Add queue to handle all of the events and add rate limiting
         //TODO: why because if user bursts game will crash
 
         checkAndStartGame(text)
 
         if(gameState.status == GameStatus.PLAYING) {
+
+
             val box = gameState.allWords?.get(gameState.currentWordBox)!!
             val boxLen = box.length
 
             val userTypedSpaceTwoTimesInARow = !(text.isEmpty() || text[text.length - 1] != ' ' || box[text.length - 1] == ' ')
             val userTypedLetterOnSpace = text.isNotEmpty() && text[text.length - 1] != ' ' && box[text.length - 1] == ' '
 
-
             if (!userTypedSpaceTwoTimesInARow) {
-                if(text.length == boxLen - 1) {
+                val userFinishedBox = text.length == boxLen - 1
+
+                if(userFinishedBox || isFinished()) {
 
                     val (mistakesCnt, correctWordsCnt) = countMistakesAndCorrectWords(text, box)
 
                     gameState = gameState.copy(
-                        mistakesMade = (gameState.mistakesMade ?: 0) + mistakesCnt,
-                        correctWords = (gameState.correctWords ?: 0) + correctWordsCnt,
+                        mistakesMade = gameState.mistakesMade!!  + mistakesCnt,
+                        correctWords = gameState.correctWords!!  + correctWordsCnt,
                         currentWordBox = gameState.currentWordBox + 1,
-                        lenOverall = (gameState.lenOverall ?: 0L) + text.length,
+                        lenOverall = gameState.lenOverall!!  + text.length,
                         elapsedTime = timeProvider.now() - startTime!!,
                         typedText = "",
                     )
-
                     computeAccAndWpm()
-                    checkAndFinishGame()
+
+                    if(isFinished()) {
+                        finishAndSave()
+                    }
 
                 } else if(!userTypedLetterOnSpace) {
                     gameState = gameState.copy(
@@ -127,7 +154,6 @@ class GameViewModel @Inject constructor(
             }
         }
     }
-
     private fun countMistakesAndCorrectWords(text: String, box: String): Pair<Int, Int> {
 
         val wordsTyped = text.split(" ")
@@ -153,7 +179,6 @@ class GameViewModel @Inject constructor(
 
     private fun computeAccAndWpm() {
         viewModelScope.launch {
-
 
             val acc = TypingCalculator.computeAcc(
                 length = gameState.lenOverall!!.toInt(),
@@ -201,24 +226,27 @@ class GameViewModel @Inject constructor(
             gameMode = mode
         )
     }
-    private fun checkAndFinishGame(clock: Long? = null) {
-        when(val mode = configState.gameMode) {
+    private fun isFinished(): Boolean {
+        return when(val mode = configState.gameMode) {
             is GameMode.Training.WordBased -> {
-
-
                 val wordCount = mode.wordCount.value.toLong()
-                if(wordCount / 5 == gameState.currentWordBox.toLong()) {
-
-                    gameState = gameState.copy(status = GameStatus.FINISHED)
-                    viewModelScope.launch(Dispatchers.IO) {
-                        saveResult()
-                    }
-                }
+                wordCount / 5 == gameState.currentWordBox.toLong()
             }
-            else -> {}
+            is GameMode.Training.TimeBased -> {
+                val targetTime = mode.time.value.toLong()
+                targetTime <= gameState.elapsedTime!! / 1000L
+            }
+            else -> {
+                false
+            }
         }
     }
-    private fun startTicker() {
+
+    private fun finishAndSave() {
+        gameState = gameState.copy(status = GameStatus.FINISHED)
+        viewModelScope.launch(Dispatchers.IO) {
+            saveResult()
+        }
     }
     private suspend fun generateText() {
 
@@ -256,7 +284,6 @@ class GameViewModel @Inject constructor(
                     }
                 }
         }
-
     }
     private fun<T> stateUpdaterLoadingOrError(value: Resource<T>) {
         gameState = when(value) {
