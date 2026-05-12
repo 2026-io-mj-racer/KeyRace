@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,11 +30,13 @@ import com.example.keyraceapp.domain.models.Score
 import com.example.keyraceapp.domain.models.TimePeriod
 import com.example.keyraceapp.presentation.Game.configScreen.GameModeSelectorRow
 import com.example.keyraceapp.ui.theme.DeepWhite
+import com.example.keyraceapp.ui.theme.ErrorRed
 
 @Composable
-fun ScoreTable(
+fun ScoreTableWithResetButton(
     modifier: Modifier = Modifier,
     onSelectedGameMode: (GameMode) -> Unit,
+    onResetData: () -> Unit,
     scores: List<Score>,
     isTraining: Boolean
 ) {
@@ -101,6 +105,17 @@ fun ScoreTable(
                 }
             }
         }
+
+        Button(
+            modifier = Modifier.padding(8.dp),
+            onClick = onResetData,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = DeepWhite,
+            )
+        ) {
+            Text("RESET STATS", fontWeight = FontWeight.SemiBold, color = ErrorRed)
+        }
+
 
     } else {
         Text("NO DATA", style = MaterialTheme.typography.bodyLarge)

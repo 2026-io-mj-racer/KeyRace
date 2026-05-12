@@ -56,7 +56,8 @@ fun KeyRaceHost(
                         is GameMode.Arcade -> profileViewModel.onEvent(ProfileEvent.OnFetchArcade)
                     }
                 },
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                onResetData = {profileViewModel.onEvent(ProfileEvent.OnResetUserData)}
             )
         }
 
