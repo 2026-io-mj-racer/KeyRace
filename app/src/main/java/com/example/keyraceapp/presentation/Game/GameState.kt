@@ -14,6 +14,7 @@ data class GameState(
     val mistakesMade: Int? = null,
     val correctWords: Int? = null,
     val elapsedTime: Long? = null,
+    val timeBeforePauses: Long = 0L,
     val currentWpm: Float? = null,
     val currentAcc: Float? = null,
     val points: Long? = null,
