@@ -26,5 +26,8 @@ interface UserDao {
     @Insert
     suspend fun insert(user: UserEntity)
 
+    @Query("UPDATE userentity SET name = :newName WHERE id = :userId")
+    suspend fun updateName(newName: String, userId: String)
+
 }
 

@@ -8,7 +8,7 @@ import com.example.keyraceapp.domain.models.Score
 import com.example.keyraceapp.domain.models.User
 import java.time.LocalDate
 
-fun UserEntity.toUser(): User  = User(name = this.name)
+fun UserEntity.toUser(): User  = User(name = this.name, id = this.id)
 fun User.toUserEntity(): UserEntity = UserEntity(name = this.name)
 
 fun ArcadeScoreEntity.toArcadeScore(): Score.ArcadeScore =

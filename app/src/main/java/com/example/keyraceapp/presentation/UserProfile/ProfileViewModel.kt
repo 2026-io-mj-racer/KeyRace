@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.keyraceapp.domain.models.Difficulty
 import com.example.keyraceapp.domain.models.GameMode
+import com.example.keyraceapp.domain.models.GameMode.Arcade
+import com.example.keyraceapp.domain.models.GameMode.Training.TimeBased
 import com.example.keyraceapp.domain.models.Score
 import com.example.keyraceapp.domain.models.TimePeriod
 import com.example.keyraceapp.domain.repositories.ScoreRepository
@@ -29,19 +31,55 @@ class ProfileViewModel @Inject constructor(
         private set
     fun onEvent(event: ProfileEvent) {
         when(event) {
-            is ProfileEvent.OnFetchArcade -> viewModelScope.launch { fetchTypingData(GameMode.Arcade(Difficulty.EASY)) }
-            is ProfileEvent.OnFetchTraining -> viewModelScope.launch { fetchTypingData(GameMode.Training.TimeBased(TimePeriod.THIRTY_SECONDS))}
+            is ProfileEvent.OnFetchArcade -> viewModelScope.launch { fetchTypingData(Arcade(Difficulty.EASY)) }
+            is ProfileEvent.OnFetchTraining -> viewModelScope.launch { fetchTypingData(TimeBased(TimePeriod.THIRTY_SECONDS))}
             is ProfileEvent.OnResetUserData -> viewModelScope.launch { resetUserData() }
             is ProfileEvent.OnFetchUser -> viewModelScope.launch { fetchUser() }
+            is ProfileEvent.OnChangeName -> viewModelScope.launch { updateUsername(event.name) }
+            is ProfileEvent.OnEditNameClick -> onShowDialog()
+            is ProfileEvent.OnEditNameDismiss -> onDismissDialog()
+            is ProfileEvent.OnChangeInputName -> onEditInputName(event.name)
+
         }
     }
+
+    private fun onShowDialog() {
+        state = state.copy(showEditNameDialog = true)
+    }
+
+    private fun onDismissDialog() {
+        state = state.copy(showEditNameDialog = false)
+    }
+
+    private fun onEditInputName(newName: String) {
+        state = state.copy(editNameInput = newName)
+    }
+
+    private suspend fun updateUsername(newName: String) {
+
+        userRepository.changeUsername(name = newName, userId = state.user.id!!)
+
+        state = state.copy(
+            user = state.user.copy(name = newName),
+            showEditNameDialog = false,
+        )
+    }
     private suspend fun fetchUser() {
-        val user = userRepository.getUser()
+        var user = userRepository.getUser()
+
+        if(user is Resource.Error) {
+            userRepository.saveUser(state.user)
+        }
+
+        user = userRepository.getUser()
 
         when(user) {
-            is Resource.Success -> state = state.copy(user = user.data!!)
+            is Resource.Success -> {
+                state = state.copy(user = user.data!!, editNameInput = user.data.name)
+            }
             is Resource.Error, is Resource.Loading -> stateUpdaterLoadingOrError(user)
         }
+
     }
 
     private suspend fun fetchTypingData(mode: GameMode) {

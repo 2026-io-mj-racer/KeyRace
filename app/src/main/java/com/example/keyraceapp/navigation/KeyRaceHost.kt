@@ -57,7 +57,11 @@ fun KeyRaceHost(
                     }
                 },
                 onNavigateBack = { navController.popBackStack() },
-                onResetData = {profileViewModel.onEvent(ProfileEvent.OnResetUserData)}
+                onResetData = {profileViewModel.onEvent(ProfileEvent.OnResetUserData)},
+                onChangeName = {newName -> profileViewModel.onEvent(ProfileEvent.OnChangeName(newName))},
+                onShowDialog = {profileViewModel.onEvent(ProfileEvent.OnEditNameClick)},
+                onDismissDialog = {profileViewModel.onEvent(ProfileEvent.OnEditNameDismiss)},
+                onEditInput = {newName -> profileViewModel.onEvent(ProfileEvent.OnChangeInputName(newName))}
             )
         }
 

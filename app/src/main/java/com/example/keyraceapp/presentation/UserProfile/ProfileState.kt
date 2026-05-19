@@ -11,6 +11,8 @@ data class ProfileState(
     val wordsTyped: Long = 0,
     val gamesPlayed: Long = 0,
     val user: User = User("Unknown"),
+    val showEditNameDialog: Boolean = false,
+    val editNameInput: String = "",
     val errorMessage: String? = null,
     val isLoading: Boolean = false,
 )
