@@ -45,4 +45,15 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun changeUsername(name: String, userId: String): Resource<Unit> {
+        try {
+            userDao.updateName(name, userId)
+
+            return Resource.Success(Unit)
+        } catch (e: Exception) {
+            return Resource.Error(message = "Unable to change username")
+        }
+
+    }
+
 }

@@ -1,6 +1,5 @@
 package com.example.keyraceapp.presentation.Game
 
-import android.R.attr.mode
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,7 +16,6 @@ import com.example.keyraceapp.util.Resource
 import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
@@ -25,8 +23,6 @@ import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
 import javax.inject.Inject
-import kotlin.concurrent.timer
-
 
 @HiltViewModel
 class GameViewModel @Inject constructor(
@@ -37,9 +33,7 @@ class GameViewModel @Inject constructor(
     var gameState  by mutableStateOf(GameState())
         private set
     var configState by mutableStateOf(ConfigState())
-    private var timerJob: Job? = null
     private var startTime: Long? = null
-    private var accumulatedTime: Long? = null
 
     fun onEvent(event: GameEvent) {
         when(event) {
@@ -54,7 +48,6 @@ class GameViewModel @Inject constructor(
                     }
 
                     generateText()
-
                 }
             }
             is GameEvent.OnChangeText -> viewModelScope.launch {
@@ -76,11 +69,12 @@ class GameViewModel @Inject constructor(
     }
     private suspend fun timer(mode: GameMode.Training.TimeBased) {
         val targetTimeMillis = mode.time.value.toLong() * 1000L
+        val baseTime = gameState.timeBeforePauses
 
         while (gameState.status == GameStatus.PLAYING) {
             val elapsed = timeProvider.now() - startTime!!
 
-            if (elapsed >= targetTimeMillis) {
+            if (baseTime + elapsed >= targetTimeMillis) {
                 gameState = gameState.copy(
                     elapsedTime = targetTimeMillis,
                     status = GameStatus.FINISHED
@@ -95,7 +89,6 @@ class GameViewModel @Inject constructor(
             delay(100L)
         }
     }
-
 
 
     private suspend fun gameLoop(text: String) {
@@ -137,7 +130,7 @@ class GameViewModel @Inject constructor(
             correctWords = gameState.correctWords!!  + correctWordsCnt,
             currentWordBox = gameState.currentWordBox + 1,
             lenOverall = gameState.lenOverall!!  + text.length,
-            elapsedTime = timeProvider.now() - startTime!!,
+            elapsedTime = timeProvider.now() - startTime!! + gameState.timeBeforePauses,
             typedText = "",
         )
         computeAccAndWpm()
@@ -203,7 +196,7 @@ class GameViewModel @Inject constructor(
             mistakesMade = gameState.mistakesMade!!
         )
         val wpm = TypingCalculator.computeWpm(
-            elapsedTime = gameState.elapsedTime!!.toFloat(),
+            elapsedTime = gameState.timeBeforePauses.toFloat() + gameState.elapsedTime!!,
             length = gameState.lenOverall!!.toInt()
         )
 
@@ -222,12 +215,18 @@ class GameViewModel @Inject constructor(
     }
     private fun resumeGame() {
         if(gameState.status == GameStatus.PAUSED) {
-            gameState = gameState.copy(status = GameStatus.PLAYING)
+            gameState = gameState.copy(status = GameStatus.PLAYING, elapsedTime = 0L)
+            startTime = timeProvider.now()
         }
     }
     private fun pauseGame() {
         if(gameState.status == GameStatus.PLAYING) {
-            gameState = gameState.copy(status = GameStatus.PAUSED)
+            gameState = gameState.copy(
+                status = GameStatus.PAUSED,
+                timeBeforePauses = gameState.elapsedTime!! + gameState.timeBeforePauses
+            )
+
+
         }
     }
     private suspend fun saveResult() {
