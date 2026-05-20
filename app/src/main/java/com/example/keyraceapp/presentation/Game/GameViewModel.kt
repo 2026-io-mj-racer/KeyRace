@@ -16,6 +16,7 @@ import com.example.keyraceapp.util.Resource
 import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
@@ -34,6 +35,7 @@ class GameViewModel @Inject constructor(
         private set
     var configState by mutableStateOf(ConfigState())
     private var startTime: Long? = null
+    private var timerJob: Job? = null
 
     fun onEvent(event: GameEvent) {
         when(event) {
@@ -51,7 +53,8 @@ class GameViewModel @Inject constructor(
                 }
             }
             is GameEvent.OnChangeText -> viewModelScope.launch {
-                gameLoop(event.text)
+                startTimerIfNeeded(mode = configState.gameMode)
+                updateTyping(event.text)
 
             }
             is GameEvent.OnPauseGame -> pauseGame()
@@ -67,7 +70,19 @@ class GameViewModel @Inject constructor(
 
 
     }
+    private fun startTimerIfNeeded(mode: GameMode) {
+
+        if(timerJob?.isActive == true) return
+
+        when(mode) {
+            is GameMode.Training.TimeBased -> {
+                timerJob = viewModelScope.launch { timer(mode) }
+            }
+            else -> {}
+        }
+    }
     private suspend fun timer(mode: GameMode.Training.TimeBased) {
+
         val targetTimeMillis = mode.time.value.toLong() * 1000L
         val baseTime = gameState.timeBeforePauses
 
@@ -91,24 +106,6 @@ class GameViewModel @Inject constructor(
     }
 
 
-    private suspend fun gameLoop(text: String) {
-
-        when(val mode = configState.gameMode) {
-            is GameMode.Training.TimeBased -> {
-                coroutineScope {
-                    launch { updateTyping(text) }
-
-                    launch { timer(mode) }
-                }
-
-            }
-            is GameMode.Training.WordBased -> {
-                updateTyping(text)
-
-            }
-            else -> {}
-        }
-    }
     private fun checkAndStartGame(text: String) {
         if(text.length == 1 && gameState.status == null) {
 
