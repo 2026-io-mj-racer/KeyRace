@@ -1,9 +1,5 @@
 package com.example.keyraceapp
 
-import android.icu.lang.UCharacter.JoiningGroup.HE
-import android.util.Log.e
-import android.util.Log.i
-import androidx.compose.ui.input.key.Key.Companion.D
 import com.example.keyraceapp.domain.models.Difficulty
 import com.example.keyraceapp.domain.models.GameMode
 import com.example.keyraceapp.domain.models.GameStatus
@@ -12,21 +8,16 @@ import com.example.keyraceapp.domain.models.WordCount
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
 import com.example.keyraceapp.presentation.Game.ConfigState
-import com.example.keyraceapp.presentation.Game.GameEvent
-import com.example.keyraceapp.presentation.Game.GameState
-import com.example.keyraceapp.presentation.Game.GameViewModel
+import com.example.keyraceapp.presentation.Game.Training.GameEvent
+import com.example.keyraceapp.presentation.Game.Training.GameState
+import com.example.keyraceapp.presentation.Game.Training.GameViewModel
 import com.example.keyraceapp.util.Resource
 import com.example.keyraceapp.util.TimeProvider
-import io.mockk.Runs
 import io.mockk.coEvery
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -38,7 +29,6 @@ import org.junit.Before
 import org.junit.Test
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
-import kotlin.coroutines.EmptyCoroutineContext.get
 import kotlin.test.assertEquals
 
 class FakeTimeProvider: TimeProvider {

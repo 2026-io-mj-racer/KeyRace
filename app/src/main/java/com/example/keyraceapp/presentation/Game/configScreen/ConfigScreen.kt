@@ -1,5 +1,6 @@
 package com.example.keyraceapp.presentation.Game.configScreen
 
+import android.R.attr.mode
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +30,7 @@ fun ConfigScreen(
     modifier: Modifier = Modifier,
     configState: ConfigState,
     onGameConfigSelected: (GameMode) -> Unit,
+    onNavigateToArcadeScreen: () -> Unit
 ) {
 
     Scaffold(
@@ -72,7 +74,7 @@ fun ConfigScreen(
             }
 
             Button(
-                onClick = onNavigateToGameScreen,
+                onClick = if(configState.gameMode is GameMode.Training) onNavigateToGameScreen else onNavigateToArcadeScreen,
                 colors = ButtonDefaults.buttonColors(containerColor = DeepWhite),
                 modifier = Modifier.padding(8.dp)
             ) {

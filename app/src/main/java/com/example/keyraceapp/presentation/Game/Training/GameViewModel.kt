@@ -1,6 +1,5 @@
-package com.example.keyraceapp.presentation.Game
+package com.example.keyraceapp.presentation.Game.Training
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,12 +11,12 @@ import com.example.keyraceapp.domain.models.Score
 import com.example.keyraceapp.domain.models.TypingCalculator
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
+import com.example.keyraceapp.presentation.Game.ConfigState
 import com.example.keyraceapp.util.Resource
 import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
