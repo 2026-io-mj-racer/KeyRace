@@ -1,5 +1,6 @@
 package com.example.keyraceapp.navigation
 
+import android.util.Log
 import android.util.Log.w
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,12 +48,13 @@ fun KeyRaceHost(
                     navController.navigate(route = Game)
 
                 },
-                configState = gameViewModel.configState,
+                configState = gameViewModel.configState.collectAsStateWithLifecycle().value,
                 onGameConfigSelected =  { mode ->
                     gameViewModel.onEvent(GameEvent.OnSelectedGameMode(mode))
                 },
                 onNavigateToArcadeScreen = {
                     arcadeViewModel.onEvent(ArcadeEvent.OnFetchWords)
+                    arcadeViewModel.onEvent(ArcadeEvent.OnAssignDifficulty)
                     navController.navigate(route = Arcade)
                 }
             )
@@ -98,7 +100,8 @@ fun KeyRaceHost(
                 state = arcadeState,
                 onReachBottom = { word -> arcadeViewModel.onEvent(ArcadeEvent.OnDeleteWord(word)) },
                 onNavigateBack = { navController.popBackStack() },
-                onStartGame = {arcadeViewModel.onEvent(ArcadeEvent.OnStartGame)}
+                onStartGame = {arcadeViewModel.onEvent(ArcadeEvent.OnStartGame)},
+                onPlayAgain = {arcadeViewModel.onEvent(ArcadeEvent.OnPlayAgain)}
             )
         }
     }
