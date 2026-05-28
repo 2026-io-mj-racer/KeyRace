@@ -1,15 +1,17 @@
 package com.example.keyraceapp.presentation.Game.Arcade
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.keyraceapp.domain.models.Difficulty
 import com.example.keyraceapp.domain.models.GameMode
 import com.example.keyraceapp.domain.models.GameStatus
+import com.example.keyraceapp.domain.models.Score
 import com.example.keyraceapp.domain.models.TypingCalculator
 import com.example.keyraceapp.domain.repositories.ConfigRepository
+import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
 import com.example.keyraceapp.util.Resource
+import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -31,14 +33,17 @@ data class ArcadeWord (val x: Int,  val word: String)
 @HiltViewModel
 class ArcadeViewModel @Inject constructor(
     private val wordRepository: WordRepository,
-    private val configRepository: ConfigRepository
+    private val configRepository: ConfigRepository,
+    private val scoreRepository: ScoreRepository,
 ): ViewModel() {
     private var _state = MutableStateFlow(ArcadeState())
     val state = _state.asStateFlow()
     var allWords: List<String> = emptyList()
     private var spawningJob: Job? = null
     private var difficulty: Difficulty = Difficulty.EASY
-
+    private suspend fun saveScore() {
+        scoreRepository.saveGame(Score.buildScore(arcadeState = state.value, configState = configRepository.config.value))
+    }
     private fun assignDifficulty() {
         when(val mode = configRepository.config.value.gameMode) {
             is GameMode.Arcade -> {
@@ -83,7 +88,6 @@ class ArcadeViewModel @Inject constructor(
             }
             is ArcadeEvent.OnAssignDifficulty -> {
                 assignDifficulty()
-                Log.d("DIFICULTY !!!!!!!!!", "$difficulty")
             }
         }
     }
@@ -104,6 +108,12 @@ class ArcadeViewModel @Inject constructor(
                     fallingWords = updatedWords,
                     lives = current.lives - 1
                 )
+            }
+        }
+
+        if(_state.value.gameStatus == GameStatus.FINISHED) {
+            viewModelScope.launch {
+                saveScore()
             }
         }
     }

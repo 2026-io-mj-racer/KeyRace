@@ -1,5 +1,6 @@
 package com.example.keyraceapp.domain.models
 
+import com.example.keyraceapp.presentation.Game.Arcade.ArcadeState
 import com.example.keyraceapp.presentation.Game.ConfigState
 import com.example.keyraceapp.presentation.Game.Training.GameState
 
@@ -21,26 +22,28 @@ sealed class Score()  {
     ): Score()
 
     companion object {
-        fun buildScore(gameState: GameState , configState: ConfigState): Score{
+        fun buildScore(arcadeState: ArcadeState? = null, gameState: GameState? = null, configState: ConfigState): Score{
             return when(configState.gameMode) {
-                is GameMode.Arcade ->
+                is GameMode.Arcade -> {
+                    val state = arcadeState!!
                     ArcadeScore(
-                        wpm = gameState.currentWpm ?: 0.0f,
-                        acc = gameState.currentAcc ?: 0.0f,
-                        points = gameState.points ?: 0L,
+                        points = state.points ?: 0L,
                         difficulty = configState.gameMode.difficulty
                     )
-                is GameMode.Training ->
+                }
+                is GameMode.Training -> {
+                    val state = gameState!!
                     TrainingScore(
-                        wpm = gameState.currentWpm ?: 0.0f,
-                        acc = gameState.currentAcc ?: 0.0f,
-                        trainingType = when(configState.gameMode) {
+                        wpm = state.currentWpm ?: 0.0f,
+                        acc = state.currentAcc ?: 0.0f,
+                        trainingType = when (configState.gameMode) {
                             is GameMode.Training.TimeBased -> "TIME_BASED"
                             is GameMode.Training.WordBased -> "WORD_BASED"
                         },
-                            mistakesMade = gameState.mistakesMade ?: 0,
-                            correctWords = gameState.correctWords ?: 0,
-                        )
+                        mistakesMade = state.mistakesMade ?: 0,
+                        correctWords = state.correctWords ?: 0,
+                    )
+                }
                 else -> throw IllegalStateException("""
                     configState.gameMode is null!
                     Please make sure that you pass valid configState to the builder.

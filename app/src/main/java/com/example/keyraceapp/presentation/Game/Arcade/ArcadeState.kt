@@ -13,6 +13,5 @@ data class ArcadeState(
     val points: Long = 0,
     val wholeTypedText: String = "",
     val errorMsg: String? = null,
-    val isLoading: Boolean = false
-
+    val isLoading: Boolean = false,
     )

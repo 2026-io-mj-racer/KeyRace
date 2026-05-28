@@ -229,7 +229,7 @@ class GameViewModel @Inject constructor(
         }
     }
     private suspend fun saveResult() {
-        val score: Score = Score.buildScore(gameState, configRepository.config.value)
+        val score: Score = Score.buildScore(gameState =gameState, configState =  configRepository.config.value)
 
         when(val savingResult = scoreRepository.saveGame(score)) {
             is Resource.Success -> {}
