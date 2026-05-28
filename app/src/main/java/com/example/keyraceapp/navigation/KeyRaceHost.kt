@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.keyraceapp.domain.models.GameMode
 import com.example.keyraceapp.presentation.Game.Arcade.ArcadeEvent
 import com.example.keyraceapp.presentation.Game.Arcade.ArcadeScreen
+import com.example.keyraceapp.presentation.Game.Arcade.ArcadeState
 import com.example.keyraceapp.presentation.Game.Arcade.ArcadeViewModel
 import com.example.keyraceapp.presentation.Game.Training.GameEvent
 import com.example.keyraceapp.presentation.Game.Training.GameScreen
@@ -55,6 +56,7 @@ fun KeyRaceHost(
                 onNavigateToArcadeScreen = {
                     arcadeViewModel.onEvent(ArcadeEvent.OnFetchWords)
                     arcadeViewModel.onEvent(ArcadeEvent.OnAssignDifficulty)
+                    arcadeViewModel.onEvent(ArcadeEvent.OnPlayAgain)
                     navController.navigate(route = Arcade)
                 }
             )
