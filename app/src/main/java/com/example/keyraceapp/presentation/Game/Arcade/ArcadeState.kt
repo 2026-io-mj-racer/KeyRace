@@ -10,8 +10,6 @@ data class ArcadeState(
     val currentTargetWord: String = "",
     val gameStatus: GameStatus? = null,
     val difficulty: Difficulty = Difficulty.MEDIUM,
-    val elapsedTime: Long? = 0L,
-    val currentWpm: Float = 0f,
     val points: Long = 0,
     val wholeTypedText: String = "",
     val errorMsg: String? = null,

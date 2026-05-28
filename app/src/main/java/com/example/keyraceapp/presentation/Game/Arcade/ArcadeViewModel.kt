@@ -147,17 +147,12 @@ class ArcadeViewModel @Inject constructor(
             } else if(input.isNotEmpty()) {
                 if(input == current.currentTargetWord) {
                     val updatedWords = current.fallingWords.filter{it.word != input}
-                    val wpm = TypingCalculator.computeWpm(current.elapsedTime!!.toFloat(), current.wholeTypedText.length)
 
                     val newPoints = TypingCalculator.computePoints(
                         len = input.length,
                         difficulty = current.difficulty,
-                        wpm = wpm,
-                        acc = 100f, //THIS -> ACC SHOULDNT BE ACCEPTED BY THIS FUNCITON ITS MISLEADING
-                        //There is no point in calculating accuracy because either you type word correctly and make it disappear or not
                     )
                     current.copy(
-                        currentWpm = wpm,
                         points = current.points + newPoints,
                         fallingWords = updatedWords,
                         typedText = "",

@@ -5,9 +5,9 @@ import java.math.RoundingMode
 import kotlin.math.round
 
 object TypingCalculator {
-    fun computePoints(len: Int, difficulty: Difficulty, wpm: Float, acc: Float): Long {
+    fun computePoints(len: Int, difficulty: Difficulty): Long {
 
-        if(wpm == 0f || acc == 0f || len == 0) return 0L
+        if(len == 0) return 0L
 
         val multiplier =
             when(difficulty) {
@@ -16,9 +16,8 @@ object TypingCalculator {
                 Difficulty.HARD -> 1.5
             }
 
-        val accPercent = acc / 100.0
 
-        return (len * multiplier + (accPercent * (wpm / 10))).toLong()
+        return (len * multiplier).toLong()
     }
     fun computeWpm(elapsedTime: Float, length: Int): Float  {
         if(elapsedTime <= 0 || length <= 0) return 0f
