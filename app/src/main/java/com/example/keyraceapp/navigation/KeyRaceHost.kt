@@ -1,15 +1,23 @@
 package com.example.keyraceapp.navigation
 
+import android.util.Log
+import android.util.Log.w
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.keyraceapp.domain.models.GameMode
-import com.example.keyraceapp.presentation.Game.GameEvent
-import com.example.keyraceapp.presentation.Game.GameScreen
-import com.example.keyraceapp.presentation.Game.GameViewModel
+import com.example.keyraceapp.presentation.Game.Arcade.ArcadeEvent
+import com.example.keyraceapp.presentation.Game.Arcade.ArcadeScreen
+import com.example.keyraceapp.presentation.Game.Arcade.ArcadeState
+import com.example.keyraceapp.presentation.Game.Arcade.ArcadeViewModel
+import com.example.keyraceapp.presentation.Game.Training.GameEvent
+import com.example.keyraceapp.presentation.Game.Training.GameScreen
+import com.example.keyraceapp.presentation.Game.Training.GameViewModel
 import com.example.keyraceapp.presentation.Game.configScreen.ConfigScreen
 import com.example.keyraceapp.presentation.UserProfile.ProfileEvent
 import com.example.keyraceapp.presentation.UserProfile.ProfileViewModel
@@ -19,11 +27,12 @@ import com.example.keyraceapp.presentation.UserProfile.profileScreen.ProfileScre
 fun KeyRaceHost(
     gameViewModel: GameViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
+    arcadeViewModel: ArcadeViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
-
 ) {
 
     val navController = rememberNavController()
+    val arcadeState by arcadeViewModel.state.collectAsStateWithLifecycle()
 
 
     NavHost(navController = navController, startDestination = Config) {
@@ -40,9 +49,15 @@ fun KeyRaceHost(
                     navController.navigate(route = Game)
 
                 },
-                configState = gameViewModel.configState,
+                configState = gameViewModel.configState.collectAsStateWithLifecycle().value,
                 onGameConfigSelected =  { mode ->
                     gameViewModel.onEvent(GameEvent.OnSelectedGameMode(mode))
+                },
+                onNavigateToArcadeScreen = {
+                    arcadeViewModel.onEvent(ArcadeEvent.OnFetchWords)
+                    arcadeViewModel.onEvent(ArcadeEvent.OnAssignDifficulty)
+                    arcadeViewModel.onEvent(ArcadeEvent.OnPlayAgain)
+                    navController.navigate(route = Arcade)
                 }
             )
         }
@@ -81,5 +96,15 @@ fun KeyRaceHost(
             )
         }
 
+        composable<Arcade> {
+            ArcadeScreen(
+                onUserInput = { input -> arcadeViewModel.onEvent(ArcadeEvent.OnUserInput(input)) },
+                state = arcadeState,
+                onReachBottom = { word -> arcadeViewModel.onEvent(ArcadeEvent.OnDeleteWord(word)) },
+                onNavigateBack = { navController.popBackStack() },
+                onStartGame = {arcadeViewModel.onEvent(ArcadeEvent.OnStartGame)},
+                onPlayAgain = {arcadeViewModel.onEvent(ArcadeEvent.OnPlayAgain)}
+            )
+        }
     }
 }

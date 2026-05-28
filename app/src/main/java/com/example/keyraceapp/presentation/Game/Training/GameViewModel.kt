@@ -1,6 +1,5 @@
-package com.example.keyraceapp.presentation.Game
+package com.example.keyraceapp.presentation.Game.Training
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,15 +9,18 @@ import com.example.keyraceapp.domain.models.GameMode
 import com.example.keyraceapp.domain.models.GameStatus
 import com.example.keyraceapp.domain.models.Score
 import com.example.keyraceapp.domain.models.TypingCalculator
+import com.example.keyraceapp.domain.repositories.ConfigRepository
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
+import com.example.keyraceapp.presentation.Game.ConfigState
 import com.example.keyraceapp.util.Resource
 import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -28,12 +30,14 @@ import javax.inject.Inject
 class GameViewModel @Inject constructor(
     private val wordRepository: WordRepository,
     private val scoreRepository: ScoreRepository,
-    private  val timeProvider: TimeProvider
+    private  val timeProvider: TimeProvider,
+    private val configRepository: ConfigRepository
 ): ViewModel() {
     var gameState  by mutableStateOf(GameState())
         private set
-    var configState by mutableStateOf(ConfigState())
     private var startTime: Long? = null
+    private var timerJob: Job? = null
+    val configState = configRepository.config
 
     fun onEvent(event: GameEvent) {
         when(event) {
@@ -51,7 +55,8 @@ class GameViewModel @Inject constructor(
                 }
             }
             is GameEvent.OnChangeText -> viewModelScope.launch {
-                gameLoop(event.text)
+                startTimerIfNeeded(mode = configRepository.config.value.gameMode)
+                updateTyping(event.text)
 
             }
             is GameEvent.OnPauseGame -> pauseGame()
@@ -67,7 +72,19 @@ class GameViewModel @Inject constructor(
 
 
     }
+    private fun startTimerIfNeeded(mode: GameMode) {
+
+        if(timerJob?.isActive == true) return
+
+        when(mode) {
+            is GameMode.Training.TimeBased -> {
+                timerJob = viewModelScope.launch { timer(mode) }
+            }
+            else -> {}
+        }
+    }
     private suspend fun timer(mode: GameMode.Training.TimeBased) {
+
         val targetTimeMillis = mode.time.value.toLong() * 1000L
         val baseTime = gameState.timeBeforePauses
 
@@ -91,24 +108,6 @@ class GameViewModel @Inject constructor(
     }
 
 
-    private suspend fun gameLoop(text: String) {
-
-        when(val mode = configState.gameMode) {
-            is GameMode.Training.TimeBased -> {
-                coroutineScope {
-                    launch { updateTyping(text) }
-
-                    launch { timer(mode) }
-                }
-
-            }
-            is GameMode.Training.WordBased -> {
-                updateTyping(text)
-
-            }
-            else -> {}
-        }
-    }
     private fun checkAndStartGame(text: String) {
         if(text.length == 1 && gameState.status == null) {
 
@@ -230,7 +229,7 @@ class GameViewModel @Inject constructor(
         }
     }
     private suspend fun saveResult() {
-        val score: Score = Score.buildScore(gameState, configState)
+        val score: Score = Score.buildScore(gameState =gameState, configState =  configRepository.config.value)
 
         when(val savingResult = scoreRepository.saveGame(score)) {
             is Resource.Success -> {}
@@ -238,12 +237,10 @@ class GameViewModel @Inject constructor(
         }
     }
     private fun selectGameMode(mode: GameMode) {
-        configState = configState.copy(
-            gameMode = mode
-        )
+        configRepository.config.update { curr -> curr.copy(gameMode = mode) }
     }
     private fun shouldFinishGame(): Boolean {
-        return when(val mode = configState.gameMode) {
+        return when(val mode = configRepository.config.value.gameMode) {
             is GameMode.Training.WordBased -> {
                 val wordCount = mode.wordCount.value.toLong()
                 wordCount / 5 == gameState.currentWordBox.toLong()

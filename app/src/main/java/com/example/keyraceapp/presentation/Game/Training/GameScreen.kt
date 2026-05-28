@@ -1,6 +1,5 @@
-package com.example.keyraceapp.presentation.Game
+package com.example.keyraceapp.presentation.Game.Training
 
-import android.R.attr.onClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

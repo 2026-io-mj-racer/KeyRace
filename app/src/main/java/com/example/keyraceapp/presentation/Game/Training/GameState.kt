@@ -1,4 +1,4 @@
-package com.example.keyraceapp.presentation.Game
+package com.example.keyraceapp.presentation.Game.Training
 
 import com.example.keyraceapp.domain.models.GameStatus
 

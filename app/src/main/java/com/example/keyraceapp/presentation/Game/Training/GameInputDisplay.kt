@@ -1,4 +1,4 @@
-package com.example.keyraceapp.presentation.Game
+package com.example.keyraceapp.presentation.Game.Training
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

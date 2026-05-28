@@ -5,7 +5,7 @@ import com.example.keyraceapp.domain.models.GameStatus
 import com.example.keyraceapp.domain.models.Score
 import com.example.keyraceapp.domain.models.TimePeriod
 import com.example.keyraceapp.presentation.Game.ConfigState
-import com.example.keyraceapp.presentation.Game.GameState
+import com.example.keyraceapp.presentation.Game.Training.GameState
 import org.junit.Test
 import kotlin.test.assertEquals
 
