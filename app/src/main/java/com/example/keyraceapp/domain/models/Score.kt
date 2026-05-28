@@ -1,7 +1,7 @@
 package com.example.keyraceapp.domain.models
 
 import com.example.keyraceapp.presentation.Game.ConfigState
-import com.example.keyraceapp.presentation.Game.GameState
+import com.example.keyraceapp.presentation.Game.Training.GameState
 
 sealed class Score()  {
     abstract val wpm: Float

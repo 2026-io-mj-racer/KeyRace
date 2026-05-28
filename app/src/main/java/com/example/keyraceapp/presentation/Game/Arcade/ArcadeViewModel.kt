@@ -1,0 +1,165 @@
+package com.example.keyraceapp.presentation.Game.Arcade
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.keyraceapp.domain.models.GameStatus
+import com.example.keyraceapp.domain.models.TypingCalculator
+import com.example.keyraceapp.domain.repositories.WordRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+import kotlin.collections.filter
+import kotlin.collections.find
+import kotlin.collections.plus
+import kotlin.random.Random
+
+
+data class ArcadeWord (val x: Int, val y: Int, val word: String, val speed: Int)
+val randomWords = listOf<String>(
+    "abc",
+    "cde",
+    "efg",
+    "hijk",
+    "lmnp",
+    "zks",
+    "uff"
+)
+@HiltViewModel
+class ArcadeViewModel @Inject constructor(wordRepository: WordRepository): ViewModel() {
+    private var _state = MutableStateFlow(ArcadeState())
+    val state = _state.asStateFlow()
+    private var spawningJob: Job? = null
+
+    fun onEvent(event: ArcadeEvent) {
+        when(event) {
+            is ArcadeEvent.OnUserInput -> viewModelScope.launch {
+                onUserTyped(event.input)
+            }
+            is ArcadeEvent.OnDeleteWord -> {
+                deleteWord(event.word)
+            }
+            is ArcadeEvent.OnStartGame -> {
+                startSpawningWordsIfNeeded()
+                _state.update { current -> current.copy(gameStatus = GameStatus.PLAYING) }
+            }
+        }
+    }
+    private fun deleteWord(word: String) {
+        _state.update { current ->
+            val updatedWords = current.fallingWords.filter { it.word != word }
+            val deletingTarget = word == current.currentTargetWord
+
+            if(current.lives - 1 == 0) {
+                current.copy(
+                    lives = 0,
+                    gameStatus = GameStatus.FINISHED
+                )
+            } else {
+                current.copy(
+                    currentTargetWord = if(deletingTarget) "" else current.currentTargetWord,
+                    typedText = if(deletingTarget) "" else current.typedText,
+                    fallingWords = updatedWords,
+                    lives = current.lives - 1
+                )
+            }
+        }
+    }
+
+    private fun startSpawningWordsIfNeeded() {
+
+        if(spawningJob?.isActive == true) return
+
+        spawningJob = viewModelScope.launch {
+            spawnWords()
+        }
+    }
+    private suspend fun spawnWords() {
+
+        while(true) {
+            delay(2000L)
+
+            _state.update { current ->
+                val newWord = wordGenerator(current.fallingWords)
+
+                current.copy(fallingWords = current.fallingWords + newWord)
+            }
+        }
+    }
+    private fun onUserTyped(input: String) {
+
+
+        _state.update { current ->
+            if(input.length == 1) {
+
+                val matchedWord = current.fallingWords.find { it.word[0] == input[0] }
+                if(matchedWord != null) {
+                    current.copy(
+                        currentTargetWord = matchedWord.word,
+                        typedText = input,
+                        wholeTypedText = current.typedText + input.length
+                    )
+                } else {
+                    current
+                }
+            } else if(input.isNotEmpty()) {
+                if(input == current.currentTargetWord) {
+                    val updatedWords = current.fallingWords.filter{it.word != input}
+                    val wpm = TypingCalculator.computeWpm(current.elapsedTime!!.toFloat(), current.wholeTypedText.length)
+
+                    val newPoints = TypingCalculator.computePoints(
+                        len = input.length,
+                        difficulty = current.difficulty,
+                        wpm = wpm,
+                        acc = 100f, //THIS -> ACC SHOULDNT BE ACCEPTED BY THIS FUNCITON ITS MISLEADING
+                        //There is no point in calculating accuracy because either you type word correctly and make it disappear or not
+                    )
+                    current.copy(
+                        currentWpm = wpm,
+                        points = current.points + newPoints,
+                        fallingWords = updatedWords,
+                        typedText = "",
+                        currentTargetWord = "",
+                        wholeTypedText = current.typedText + input.length
+                    )
+                } else {
+                    current.copy(
+                        wholeTypedText = current.typedText + input.length,
+                        typedText = input
+                    )
+                }
+            }
+            else {
+                current
+            }
+        }
+    }
+    private fun wordGenerator(wordsOnScreen: List<ArcadeWord>): ArcadeWord {
+        //Lets assume that words wont ever overlap
+        //this means at most one word can be generated in one iteration(animation pahse)
+        //Generator makes sure that only one word with the same starting letter is on the screen
+        val rd = Random
+
+        val firstLettersList = mutableListOf<Char>()
+        wordsOnScreen.forEach { arcadeWord ->
+            firstLettersList.add(arcadeWord.word[0])
+        }
+
+        var sameFirstLetter = true
+        var nextWord = ArcadeWord(-1, -1, "", 0)
+        while(sameFirstLetter) {
+
+            nextWord = ArcadeWord(x = rd.nextInt(300), y = 0, word = randomWords[rd.nextInt(randomWords.size)], speed = 50)
+            if(!firstLettersList.contains(nextWord.word[0])) {
+                sameFirstLetter = false
+            }
+        }
+
+        return nextWord
+    }
+}
+

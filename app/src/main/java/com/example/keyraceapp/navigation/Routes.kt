@@ -4,6 +4,9 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
+object Arcade {
+}
+@Serializable
 object Profile {
 }
 @Serializable
