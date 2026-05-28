@@ -9,7 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,6 +38,7 @@ fun ArcadeScreen(
     onReachBottom: (String) -> Unit,
     onNavigateBack: () -> Unit,
     onStartGame: () -> Unit,
+    onPlayAgain: () -> Unit
 ) {
     Scaffold(
         topBar = { TopBarWithBackButton(onNavigateBack) },
@@ -48,6 +54,15 @@ fun ArcadeScreen(
             ) {
                 Text("GAME OVER", style = MaterialTheme.typography.titleLarge)
                 Text("SCORE = ${state.points}", style = MaterialTheme.typography.bodyLarge)
+                IconButton(onClick = onPlayAgain) {
+                    Icon(
+                        imageVector = Icons.Default.Replay,
+                        contentDescription = "Play again button",
+                        modifier = Modifier.size(32.dp)
+
+                    )
+                }
+
             }
         } else  {
             Box(modifier = Modifier.fillMaxSize()) {

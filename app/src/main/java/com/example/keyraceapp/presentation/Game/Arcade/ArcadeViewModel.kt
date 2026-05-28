@@ -1,9 +1,13 @@
 package com.example.keyraceapp.presentation.Game.Arcade
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.keyraceapp.domain.models.Difficulty
+import com.example.keyraceapp.domain.models.GameMode
 import com.example.keyraceapp.domain.models.GameStatus
 import com.example.keyraceapp.domain.models.TypingCalculator
+import com.example.keyraceapp.domain.repositories.ConfigRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
 import com.example.keyraceapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Collections.emptyList
 import javax.inject.Inject
 import kotlin.collections.filter
 import kotlin.collections.find
@@ -24,11 +29,26 @@ import kotlin.random.Random
 data class ArcadeWord (val x: Int,  val word: String)
 
 @HiltViewModel
-class ArcadeViewModel @Inject constructor(val wordRepository: WordRepository): ViewModel() {
+class ArcadeViewModel @Inject constructor(
+    private val wordRepository: WordRepository,
+    private val configRepository: ConfigRepository
+): ViewModel() {
     private var _state = MutableStateFlow(ArcadeState())
     val state = _state.asStateFlow()
+    var allWords: List<String> = emptyList()
     private var spawningJob: Job? = null
+    private var difficulty: Difficulty = Difficulty.EASY
 
+    private fun assignDifficulty() {
+        when(val mode = configRepository.config.value.gameMode) {
+            is GameMode.Arcade -> {
+                difficulty = mode.difficulty
+            }
+            else -> {
+
+            }
+        }
+    }
     fun onEvent(event: ArcadeEvent) {
         when(event) {
             is ArcadeEvent.OnUserInput -> viewModelScope.launch {
@@ -39,12 +59,31 @@ class ArcadeViewModel @Inject constructor(val wordRepository: WordRepository): V
             }
             is ArcadeEvent.OnStartGame -> {
                 startSpawningWordsIfNeeded()
-                _state.update { current -> current.copy(gameStatus = GameStatus.PLAYING) }
+                _state.update { current ->
+                    current.copy(
+                        gameStatus = GameStatus.PLAYING,
+                        lives = when(difficulty) {
+                            Difficulty.EASY -> 3
+                            Difficulty.MEDIUM -> 2
+                            Difficulty.HARD -> 1
+                        }
+                    )
+                }
             }
             is ArcadeEvent.OnFetchWords -> {
                 viewModelScope.launch {
                     fetchWords()
                 }
+            }
+            is ArcadeEvent.OnPlayAgain -> {
+                _state.value = ArcadeState()
+                if(spawningJob?.isActive == true) {
+                    spawningJob?.cancel()
+                }
+            }
+            is ArcadeEvent.OnAssignDifficulty -> {
+                assignDifficulty()
+                Log.d("DIFICULTY !!!!!!!!!", "$difficulty")
             }
         }
     }
@@ -144,7 +183,7 @@ class ArcadeViewModel @Inject constructor(val wordRepository: WordRepository): V
             .collect { response ->
                 when(response) {
                     is Resource.Success -> {
-                        _state.update { curr -> curr.copy(allWords = response.data!!) }
+                        allWords = response.data!!
                     }
                     is Resource.Loading -> {
                         _state.update { curr -> curr.copy(isLoading = true) }
@@ -160,7 +199,7 @@ class ArcadeViewModel @Inject constructor(val wordRepository: WordRepository): V
         //this means at most one word can be generated in one iteration(animation pahse)
         //Generator makes sure that only one word with the same starting letter is on the screen
         val rd = Random
-        val words = _state.value.allWords
+        val words = allWords
 
         val firstLettersList = mutableListOf<Char>()
         wordsOnScreen.forEach { arcadeWord ->

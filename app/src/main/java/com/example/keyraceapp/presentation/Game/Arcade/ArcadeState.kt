@@ -14,7 +14,6 @@ data class ArcadeState(
     val currentWpm: Float = 0f,
     val points: Long = 0,
     val wholeTypedText: String = "",
-    val allWords: List<String> = emptyList(),
     val errorMsg: String? = null,
     val isLoading: Boolean = false
 
