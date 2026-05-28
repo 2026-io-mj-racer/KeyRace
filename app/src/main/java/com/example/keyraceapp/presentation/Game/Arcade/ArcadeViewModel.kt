@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.keyraceapp.domain.models.GameStatus
 import com.example.keyraceapp.domain.models.TypingCalculator
 import com.example.keyraceapp.domain.repositories.WordRepository
+import com.example.keyraceapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,18 +21,10 @@ import kotlin.collections.plus
 import kotlin.random.Random
 
 
-data class ArcadeWord (val x: Int, val y: Int, val word: String, val speed: Int)
-val randomWords = listOf<String>(
-    "abc",
-    "cde",
-    "efg",
-    "hijk",
-    "lmnp",
-    "zks",
-    "uff"
-)
+data class ArcadeWord (val x: Int,  val word: String)
+
 @HiltViewModel
-class ArcadeViewModel @Inject constructor(wordRepository: WordRepository): ViewModel() {
+class ArcadeViewModel @Inject constructor(val wordRepository: WordRepository): ViewModel() {
     private var _state = MutableStateFlow(ArcadeState())
     val state = _state.asStateFlow()
     private var spawningJob: Job? = null
@@ -46,6 +40,11 @@ class ArcadeViewModel @Inject constructor(wordRepository: WordRepository): ViewM
             is ArcadeEvent.OnStartGame -> {
                 startSpawningWordsIfNeeded()
                 _state.update { current -> current.copy(gameStatus = GameStatus.PLAYING) }
+            }
+            is ArcadeEvent.OnFetchWords -> {
+                viewModelScope.launch {
+                    fetchWords()
+                }
             }
         }
     }
@@ -138,11 +137,30 @@ class ArcadeViewModel @Inject constructor(wordRepository: WordRepository): ViewM
             }
         }
     }
+    private suspend fun fetchWords() {
+        wordRepository
+            .getWords()
+            .catch { throwable ->  _state.update { curr -> curr.copy(errorMsg = throwable.message)}}
+            .collect { response ->
+                when(response) {
+                    is Resource.Success -> {
+                        _state.update { curr -> curr.copy(allWords = response.data!!) }
+                    }
+                    is Resource.Loading -> {
+                        _state.update { curr -> curr.copy(isLoading = true) }
+                    }
+                    is Resource.Error -> {
+                        _state.update { curr -> curr.copy(errorMsg = response.message)}
+                    }
+                }
+            }
+    }
     private fun wordGenerator(wordsOnScreen: List<ArcadeWord>): ArcadeWord {
         //Lets assume that words wont ever overlap
         //this means at most one word can be generated in one iteration(animation pahse)
         //Generator makes sure that only one word with the same starting letter is on the screen
         val rd = Random
+        val words = _state.value.allWords
 
         val firstLettersList = mutableListOf<Char>()
         wordsOnScreen.forEach { arcadeWord ->
@@ -150,10 +168,10 @@ class ArcadeViewModel @Inject constructor(wordRepository: WordRepository): ViewM
         }
 
         var sameFirstLetter = true
-        var nextWord = ArcadeWord(-1, -1, "", 0)
+        var nextWord = ArcadeWord(-1, "" )
         while(sameFirstLetter) {
 
-            nextWord = ArcadeWord(x = rd.nextInt(300), y = 0, word = randomWords[rd.nextInt(randomWords.size)], speed = 50)
+            nextWord = ArcadeWord(x = rd.nextInt(300), word = words[rd.nextInt(words.size)])
             if(!firstLettersList.contains(nextWord.word[0])) {
                 sameFirstLetter = false
             }

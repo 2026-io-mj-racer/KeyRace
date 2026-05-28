@@ -4,9 +4,7 @@ import com.example.keyraceapp.domain.models.Difficulty
 import com.example.keyraceapp.domain.models.GameStatus
 
 data class ArcadeState(
-    val fallingWords: List<ArcadeWord> = listOf(
-        ArcadeWord(10, 10, "first", speed = 200),
-    ),
+    val fallingWords: List<ArcadeWord> = emptyList(),
     val lives: Int = 3,
     val typedText: String = "",
     val currentTargetWord: String = "",
@@ -16,5 +14,8 @@ data class ArcadeState(
     val currentWpm: Float = 0f,
     val points: Long = 0,
     val wholeTypedText: String = "",
+    val allWords: List<String> = emptyList(),
+    val errorMsg: String? = null,
+    val isLoading: Boolean = false
 
     )
