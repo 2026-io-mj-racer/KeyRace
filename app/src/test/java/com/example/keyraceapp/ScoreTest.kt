@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 class ScoreTest {
 
     @Test
-    fun `buildScore() - returns ArcadeScore correctly based on ConfigState and GameState`() {
+    fun `buildScore() - returns GameState correctly based on ConfigState and GameState`() {
         val gameState = GameState(
             status = GameStatus.FINISHED,
             typedText = "ABCD EFG",
@@ -33,7 +33,7 @@ class ScoreTest {
         )
 
 
-        val actualScore = Score.buildScore(gameState, configState)
+        val actualScore = Score.buildScore(gameState =gameState, configState =  configState)
 
         assertEquals(expectedScore, actualScore)
     }
