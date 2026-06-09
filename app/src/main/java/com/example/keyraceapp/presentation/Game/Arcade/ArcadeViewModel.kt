@@ -1,5 +1,7 @@
 package com.example.keyraceapp.presentation.Game.Arcade
 
+import android.util.Log
+import androidx.compose.runtime.currentComposer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.keyraceapp.domain.models.Difficulty
@@ -11,7 +13,6 @@ import com.example.keyraceapp.domain.repositories.ConfigRepository
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
 import com.example.keyraceapp.util.Resource
-import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -40,17 +41,21 @@ class ArcadeViewModel @Inject constructor(
     val state = _state.asStateFlow()
     var allWords: List<String> = emptyList()
     private var spawningJob: Job? = null
-    private var difficulty: Difficulty = Difficulty.EASY
     private suspend fun saveScore() {
         scoreRepository.saveGame(Score.buildScore(arcadeState = state.value, configState = configRepository.config.value))
     }
     private fun assignDifficulty() {
         when(val mode = configRepository.config.value.gameMode) {
             is GameMode.Arcade -> {
-                difficulty = mode.difficulty
+                val difficulty = mode.difficulty
+                val lives = when(difficulty) {
+                    Difficulty.EASY -> 3
+                    Difficulty.MEDIUM -> 2
+                    Difficulty.HARD -> 1
+                }
+                _state.update { curr -> curr.copy(difficulty = difficulty, lives = lives) }
             }
             else -> {
-
             }
         }
     }
@@ -67,11 +72,6 @@ class ArcadeViewModel @Inject constructor(
                 _state.update { current ->
                     current.copy(
                         gameStatus = GameStatus.PLAYING,
-                        lives = when(difficulty) {
-                            Difficulty.EASY -> 3
-                            Difficulty.MEDIUM -> 2
-                            Difficulty.HARD -> 1
-                        }
                     )
                 }
             }
@@ -142,19 +142,12 @@ class ArcadeViewModel @Inject constructor(
 
 
         _state.update { current ->
-            if(input.length == 1) {
-
-                val matchedWord = current.fallingWords.find { it.word[0] == input[0] }
-                if(matchedWord != null) {
-                    current.copy(
-                        currentTargetWord = matchedWord.word,
-                        typedText = input,
-                        wholeTypedText = current.typedText + input.length
-                    )
-                } else {
-                    current
-                }
-            } else if(input.isNotEmpty()) {
+            if(input.isEmpty()) {
+                current.copy(
+                    currentTargetWord = "",
+                    typedText = ""
+                )
+            } else if(current.currentTargetWord.isNotEmpty()) {
                 if(input == current.currentTargetWord) {
                     val updatedWords = current.fallingWords.filter{it.word != input}
 
@@ -171,13 +164,21 @@ class ArcadeViewModel @Inject constructor(
                     )
                 } else {
                     current.copy(
-                        wholeTypedText = current.typedText + input.length,
                         typedText = input
                     )
                 }
-            }
-            else {
-                current
+            } else {
+
+                val matchedWord = current.fallingWords.find { it.word[0] == input[0] }
+                if(matchedWord != null) {
+                    current.copy(
+                        currentTargetWord = matchedWord.word,
+                        typedText = input,
+                        wholeTypedText = current.typedText + input.length
+                    )
+                } else {
+                    current
+                }
             }
         }
     }
