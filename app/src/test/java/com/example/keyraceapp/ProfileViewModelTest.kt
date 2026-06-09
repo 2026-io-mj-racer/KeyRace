@@ -1,5 +1,6 @@
 package com.example.keyraceapp
 
+import android.R.attr.name
 import com.example.keyraceapp.domain.models.Difficulty
 import com.example.keyraceapp.domain.models.Score
 import com.example.keyraceapp.domain.models.User
@@ -22,6 +23,8 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import kotlin.collections.emptyList
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileViewModelTest {
@@ -242,13 +245,25 @@ class ProfileViewModelTest {
         assert(viewModel.state.gamesPlayed == 100L)
     }
     @Test
-    fun `OnResetUserData - sets state to initial values after reset when userRepository returns success`() = runTest {
+    fun `OnResetUserData - resets game values and keeps user data when repository returns success`() = runTest {
+
+        val userAfterReset = User(
+            name = "John",
+        )
+
         coEvery { userRepository.resetData(any()) } returns Resource.Success(Unit)
+        coEvery { userRepository.getUser() } returns Resource.Success(userAfterReset)
 
         viewModel.onEvent(ProfileEvent.OnResetUserData)
 
         advanceUntilIdle()
-        assert(viewModel.state == ProfileState())
+
+        assertEquals("John", viewModel.state.user?.name)
+
+        assertEquals(emptyList<Score>(), viewModel.state.topScores)
+        assertEquals(0f, viewModel.state.topWpm)
+        assertEquals(0L, viewModel.state.gamesPlayed)
+        assertEquals(0L, viewModel.state.wordsTyped)
     }
 
     // ERROR SCENARIO
@@ -271,6 +286,7 @@ class ProfileViewModelTest {
     fun `OnFetchUser - sets errorMessage in state when userRepository returns error`() = runTest {
 
         coEvery { userRepository.getUser() } returns Resource.Error("Unable to fetch user")
+        coEvery { userRepository.saveUser(any()) } returns Resource.Success(Unit)
 
         viewModel.onEvent(ProfileEvent.OnFetchUser)
 

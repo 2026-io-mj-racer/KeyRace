@@ -1,5 +1,6 @@
 package com.example.keyraceapp.presentation.Game.Training
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.keyraceapp.domain.models.GameStatus
 import com.example.keyraceapp.presentation.components.TopBarWithBackButton
+import com.example.keyraceapp.ui.theme.BackgroundBlack
+import com.example.keyraceapp.ui.theme.ErrorRed
 
 @Composable
 fun GameScreen(
@@ -34,7 +37,8 @@ fun GameScreen(
 ) {
     Scaffold(
         topBar = { TopBarWithBackButton(onNavigateBack) },
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
+        containerColor = ErrorRed
     ) { contentPadding ->
 
         Column(

@@ -17,7 +17,7 @@ private val DarkColorScheme = darkColorScheme(
     secondary =  LighterBlack,
     tertiary = ColdGray,
 
-    background = BackgroundBlack,
+    background = Color.Black,
     onBackground = Color.White,
     onPrimary = Color.White,
     onSecondary = Color.White,
@@ -40,7 +40,7 @@ private val DarkColorScheme = darkColorScheme(
 fun KeyRaceAppTheme(
     darkTheme: Boolean = true,
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

@@ -1,7 +1,5 @@
 package com.example.keyraceapp.presentation.Game.Arcade
 
-import android.util.Log
-import androidx.compose.runtime.currentComposer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.keyraceapp.domain.models.Difficulty
