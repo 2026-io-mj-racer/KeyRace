@@ -11,7 +11,6 @@ import com.example.keyraceapp.domain.repositories.ConfigRepository
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
 import com.example.keyraceapp.util.Resource
-import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -142,19 +141,12 @@ class ArcadeViewModel @Inject constructor(
 
 
         _state.update { current ->
-            if(input.length == 1) {
-
-                val matchedWord = current.fallingWords.find { it.word[0] == input[0] }
-                if(matchedWord != null) {
-                    current.copy(
-                        currentTargetWord = matchedWord.word,
-                        typedText = input,
-                        wholeTypedText = current.typedText + input.length
-                    )
-                } else {
-                    current
-                }
-            } else if(input.isNotEmpty()) {
+            if(input.isEmpty()) {
+                current.copy(
+                    currentTargetWord = "",
+                    typedText = ""
+                )
+            } else if(current.currentTargetWord.isNotEmpty()) {
                 if(input == current.currentTargetWord) {
                     val updatedWords = current.fallingWords.filter{it.word != input}
 
@@ -171,13 +163,21 @@ class ArcadeViewModel @Inject constructor(
                     )
                 } else {
                     current.copy(
-                        wholeTypedText = current.typedText + input.length,
                         typedText = input
                     )
                 }
-            }
-            else {
-                current
+            } else {
+
+                val matchedWord = current.fallingWords.find { it.word[0] == input[0] }
+                if(matchedWord != null) {
+                    current.copy(
+                        currentTargetWord = matchedWord.word,
+                        typedText = input,
+                        wholeTypedText = current.typedText + input.length
+                    )
+                } else {
+                    current
+                }
             }
         }
     }
