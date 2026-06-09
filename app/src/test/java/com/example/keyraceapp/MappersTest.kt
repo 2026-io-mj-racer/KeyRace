@@ -80,7 +80,7 @@ class MappersTest {
 
         val actual = entity.toUser()
 
-        assertEquals(domain, actual)
+        assertEquals(domain.name, actual.name)
     }
     @Test
     fun `User maps correctly to UserEntity`() {

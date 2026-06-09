@@ -5,6 +5,7 @@ import com.example.keyraceapp.domain.models.GameMode
 import com.example.keyraceapp.domain.models.GameStatus
 import com.example.keyraceapp.domain.models.TimePeriod
 import com.example.keyraceapp.domain.models.WordCount
+import com.example.keyraceapp.domain.repositories.ConfigRepository
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
 import com.example.keyraceapp.presentation.Game.ConfigState
@@ -42,6 +43,7 @@ class GameViewModelTest {
     private lateinit var viewModel: GameViewModel
     private var scoreRepository = mockk<ScoreRepository>()
     private var wordRepository = mockk<WordRepository>()
+    private var configRepository = mockk<ConfigRepository>()
     private val timeProvider = FakeTimeProvider()
     private val testDispatcher = StandardTestDispatcher()
     val exampleTimeMode = GameMode.Training.TimeBased(TimePeriod.THIRTY_SECONDS)
@@ -54,6 +56,7 @@ class GameViewModelTest {
         viewModel = GameViewModel(
             scoreRepository = scoreRepository,
             wordRepository = wordRepository,
+            configRepository = configRepository,
             timeProvider =  timeProvider
         )
 
@@ -122,7 +125,7 @@ class GameViewModelTest {
 
         viewModel.onEvent(GameEvent.OnSelectedGameMode(mode))
 
-        assertEquals(expectedConfigState, viewModel.configState)
+        assertEquals(expectedConfigState, viewModel.configState.value)
 
     }
     @Test
