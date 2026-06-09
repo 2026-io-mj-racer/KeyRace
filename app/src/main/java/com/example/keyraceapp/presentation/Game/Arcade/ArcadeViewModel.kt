@@ -1,5 +1,7 @@
 package com.example.keyraceapp.presentation.Game.Arcade
 
+import android.util.Log
+import androidx.compose.runtime.currentComposer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.keyraceapp.domain.models.Difficulty
@@ -39,17 +41,21 @@ class ArcadeViewModel @Inject constructor(
     val state = _state.asStateFlow()
     var allWords: List<String> = emptyList()
     private var spawningJob: Job? = null
-    private var difficulty: Difficulty = Difficulty.EASY
     private suspend fun saveScore() {
         scoreRepository.saveGame(Score.buildScore(arcadeState = state.value, configState = configRepository.config.value))
     }
     private fun assignDifficulty() {
         when(val mode = configRepository.config.value.gameMode) {
             is GameMode.Arcade -> {
-                difficulty = mode.difficulty
+                val difficulty = mode.difficulty
+                val lives = when(difficulty) {
+                    Difficulty.EASY -> 3
+                    Difficulty.MEDIUM -> 2
+                    Difficulty.HARD -> 1
+                }
+                _state.update { curr -> curr.copy(difficulty = difficulty, lives = lives) }
             }
             else -> {
-
             }
         }
     }
@@ -66,11 +72,6 @@ class ArcadeViewModel @Inject constructor(
                 _state.update { current ->
                     current.copy(
                         gameStatus = GameStatus.PLAYING,
-                        lives = when(difficulty) {
-                            Difficulty.EASY -> 3
-                            Difficulty.MEDIUM -> 2
-                            Difficulty.HARD -> 1
-                        }
                     )
                 }
             }

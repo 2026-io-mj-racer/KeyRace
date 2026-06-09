@@ -55,8 +55,8 @@ fun KeyRaceHost(
                 },
                 onNavigateToArcadeScreen = {
                     arcadeViewModel.onEvent(ArcadeEvent.OnFetchWords)
-                    arcadeViewModel.onEvent(ArcadeEvent.OnAssignDifficulty)
                     arcadeViewModel.onEvent(ArcadeEvent.OnPlayAgain)
+                    arcadeViewModel.onEvent(ArcadeEvent.OnAssignDifficulty)
                     navController.navigate(route = Arcade)
                 }
             )

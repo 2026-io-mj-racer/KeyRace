@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,7 +42,15 @@ fun ArcadeScreen(
     onPlayAgain: () -> Unit
 ) {
     Scaffold(
-        topBar = { TopBarWithBackButton(onNavigateBack) },
+        topBar = {
+                TopBarWithBackButton(
+                    onNavigateBack,
+                    dataTitleOne = "LIVES",
+                    valueOne = state.lives.toString(),
+                    dataTitleTwo = "SCORE",
+                    valueTwo = state.points.toString()
+                )
+         },
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->
 //TODO: add getting words from input file and generating them so that no two words with the same first letter are at the same time on the screen
