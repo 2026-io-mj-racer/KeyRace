@@ -18,6 +18,7 @@ import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
@@ -59,15 +60,20 @@ class GameViewModel @Inject constructor(
                 updateTyping(event.text)
 
             }
-            is GameEvent.OnPauseGame -> pauseGame()
+            is GameEvent.OnPauseGame ->  pauseGame()
             is GameEvent.OnResumeGame -> resumeGame()
             is GameEvent.OnRestartGame, is GameEvent.OnPlayAgain -> viewModelScope.launch {
                 restartGame()
             }
         }
     }
+    fun stopTimer() {
+        timerJob?.cancel()
+        timerJob = null
+    }
     private suspend fun restartGame() {
         gameState = GameState()
+        stopTimer()
         generateText()
 
 
@@ -214,16 +220,19 @@ class GameViewModel @Inject constructor(
     }
     private fun resumeGame() {
         if(gameState.status == GameStatus.PAUSED) {
-            gameState = gameState.copy(status = GameStatus.PLAYING, elapsedTime = 0L)
+            gameState = gameState.copy(status = GameStatus.PLAYING)
             startTime = timeProvider.now()
+            startTimerIfNeeded(configState.value.gameMode)
         }
     }
-    private fun pauseGame() {
+    private  fun pauseGame() {
         if(gameState.status == GameStatus.PLAYING) {
             gameState = gameState.copy(
                 status = GameStatus.PAUSED,
-                timeBeforePauses = gameState.elapsedTime!! + gameState.timeBeforePauses
+                timeBeforePauses = gameState.elapsedTime!! + gameState.timeBeforePauses,
+                elapsedTime = 0L
             )
+            stopTimer()
 
 
         }

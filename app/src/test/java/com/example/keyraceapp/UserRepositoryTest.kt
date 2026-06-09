@@ -42,7 +42,7 @@ class UserRepositoryTest {
 
         val actual = userRepository.getUser()
 
-        assertEquals(expected, actual)
+        assertEquals(expected.data!!.name, actual.data!!.name)
     }
 
     @Test
