@@ -1,6 +1,7 @@
 package com.example.keyraceapp.presentation
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import com.example.keyraceapp.navigation.KeyRaceHost
 import com.example.keyraceapp.presentation.Splash.SplashScreen
 import com.example.keyraceapp.ui.theme.KeyRaceAppTheme
@@ -25,6 +27,8 @@ class MainActivity : AppCompatActivity() {
             KeyRaceAppTheme {
                 var showSplash by remember { mutableStateOf(true) }
 
+                WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
+                WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = false
 
                 Crossfade(showSplash) { splash ->
                     if (splash) {
