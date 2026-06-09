@@ -77,35 +77,31 @@ class TypingCalculatorTest {
         }
     }
 
+    @Test
+    fun `Points - should return 0 when len is 0`() {
+        val result = TypingCalculator.computePoints(0, Difficulty.EASY)
+
+        assertEquals(0L, result)
+    }
 
     @Test
-    fun `Points - should return 10 when len is 5 and difficulty is Medium and wpm is 40 and acc is 100 `() {
-        val result = TypingCalculator.computePoints(5 , Difficulty.MEDIUM, 40f, 100f)
-        assertEquals(10, result)
-    }
-    @Test
-    fun `Points - should return 16 when len is 8 and  difficulty is Hard and wpm 40 is and acc is 100 `() {
-        val result = TypingCalculator.computePoints(8 , Difficulty.HARD, 40f, 100f)
-        assertEquals(16, result)
-    }
-    @Test
-    fun `Points - should return 7 when len is 3 and difficulty is Easy  and wpm is 50 and acc is 98`() {
-        val result = TypingCalculator.computePoints(3 , Difficulty.EASY, 50f, 98f)
-        assertEquals(7, result)
-    }
-    @Test
-    fun `Points - should return 0 when any parameter is 0`() {
-        data class PointsParameters(val len: Int, val difficulty: Difficulty, val wpm: Float, val acc: Float)
+    fun `Points - should return len when difficulty is Easy`() {
+        val result = TypingCalculator.computePoints(10, Difficulty.EASY)
 
-        val cases = listOf(
-            PointsParameters(0, Difficulty.EASY, 10f, 11f),
-            PointsParameters(10, Difficulty.EASY, 0f, 11f),
-            PointsParameters(10, Difficulty.EASY, 10f, 0f),
-        )
+        assertEquals(10L, result)
+    }
 
-        cases.forEach {
-            val result = TypingCalculator.computePoints(it.len, it.difficulty, it.wpm, it.acc)
-            assertEquals(message = "Failed for arguments: ${it.len}, ${it.difficulty}, ${it.wpm}, ${it.acc}",expected = 0, actual = result)
-        }
+    @Test
+    fun `Points - should return len multiplied by 1_2 when difficulty is Medium`() {
+        val result = TypingCalculator.computePoints(10, Difficulty.MEDIUM)
+
+        assertEquals(12L, result)
+    }
+
+    @Test
+    fun `Points - should return len multiplied by 1_5 when difficulty is Hard`() {
+        val result = TypingCalculator.computePoints(10, Difficulty.HARD)
+
+        assertEquals(15L, result)
     }
 }
