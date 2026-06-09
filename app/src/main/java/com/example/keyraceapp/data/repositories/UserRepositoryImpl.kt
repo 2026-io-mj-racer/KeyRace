@@ -35,7 +35,6 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun resetData(user: User): Resource<Unit> {
         try {
-            userDao.deleteUser()
             userDao.deleteArcadeScores()
             userDao.deleteTrainingScores()
 
