@@ -2,7 +2,6 @@ package com.example.keyraceapp.domain.models
 
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlin.math.round
 
 object TypingCalculator {
     fun computePoints(len: Int, difficulty: Difficulty): Long {

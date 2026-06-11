@@ -1,7 +1,5 @@
 package com.example.keyraceapp.ui.theme
 
-import android.R.attr.fontFamily
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle

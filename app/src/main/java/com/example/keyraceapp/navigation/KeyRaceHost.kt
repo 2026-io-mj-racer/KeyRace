@@ -1,7 +1,5 @@
 package com.example.keyraceapp.navigation
 
-import android.util.Log
-import android.util.Log.w
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -13,7 +11,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.keyraceapp.domain.models.GameMode
 import com.example.keyraceapp.presentation.Game.Arcade.ArcadeEvent
 import com.example.keyraceapp.presentation.Game.Arcade.ArcadeScreen
-import com.example.keyraceapp.presentation.Game.Arcade.ArcadeState
 import com.example.keyraceapp.presentation.Game.Arcade.ArcadeViewModel
 import com.example.keyraceapp.presentation.Game.Training.GameEvent
 import com.example.keyraceapp.presentation.Game.Training.GameScreen

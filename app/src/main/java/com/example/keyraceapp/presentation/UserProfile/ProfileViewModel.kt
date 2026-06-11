@@ -3,7 +3,6 @@ package com.example.keyraceapp.presentation.UserProfile
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.input.key.Key.Companion.U
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.keyraceapp.domain.models.Difficulty

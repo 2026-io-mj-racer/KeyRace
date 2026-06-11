@@ -1,13 +1,11 @@
 package com.example.keyraceapp
 
-import android.R.attr.name
 import com.example.keyraceapp.domain.models.Difficulty
 import com.example.keyraceapp.domain.models.Score
 import com.example.keyraceapp.domain.models.User
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.UserRepository
 import com.example.keyraceapp.presentation.UserProfile.ProfileEvent
-import com.example.keyraceapp.presentation.UserProfile.ProfileState
 import com.example.keyraceapp.presentation.UserProfile.ProfileViewModel
 import com.example.keyraceapp.util.Resource
 import io.mockk.coEvery
@@ -23,7 +21,6 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import kotlin.collections.emptyList
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)

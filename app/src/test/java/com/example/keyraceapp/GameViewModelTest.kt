@@ -1,7 +1,5 @@
 package com.example.keyraceapp
 
-import android.util.Log.v
-import com.example.keyraceapp.domain.models.Difficulty
 import com.example.keyraceapp.domain.models.GameMode
 import com.example.keyraceapp.domain.models.GameStatus
 import com.example.keyraceapp.domain.models.TimePeriod
@@ -9,8 +7,6 @@ import com.example.keyraceapp.domain.models.WordCount
 import com.example.keyraceapp.domain.repositories.ConfigRepository
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
-import com.example.keyraceapp.presentation.Game.Arcade.ArcadeEvent
-import com.example.keyraceapp.presentation.Game.Arcade.ArcadeViewModel
 import com.example.keyraceapp.presentation.Game.ConfigState
 import com.example.keyraceapp.presentation.Game.Training.GameEvent
 import com.example.keyraceapp.presentation.Game.Training.GameState
@@ -19,20 +15,16 @@ import com.example.keyraceapp.util.Resource
 import com.example.keyraceapp.util.TimeProvider
 import io.mockk.coEvery
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.hamcrest.core.Every
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
