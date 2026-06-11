@@ -39,6 +39,7 @@ Typing speed racing game for Android built with Kotlin and Jetpack Compose.
 
 #### Download
 The latest APK will be in the **Releases** section
+itch.io: https://mjedrkowiak.itch.io/keyrace
 And soon on **uptodown**
 
 #### In Android Studio
