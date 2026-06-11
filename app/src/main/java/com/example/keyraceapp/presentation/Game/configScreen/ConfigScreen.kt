@@ -1,6 +1,5 @@
 package com.example.keyraceapp.presentation.Game.configScreen
 
-import android.R.attr.mode
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import com.example.keyraceapp.domain.models.Difficulty
 import com.example.keyraceapp.domain.models.GameMode
 import com.example.keyraceapp.domain.models.TimePeriod
-import com.example.keyraceapp.domain.models.WordCount
 import com.example.keyraceapp.presentation.Game.ConfigState
 import com.example.keyraceapp.ui.theme.DeepWhite
 

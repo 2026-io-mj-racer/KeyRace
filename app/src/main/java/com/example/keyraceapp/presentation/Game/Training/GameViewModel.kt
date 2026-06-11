@@ -12,13 +12,11 @@ import com.example.keyraceapp.domain.models.TypingCalculator
 import com.example.keyraceapp.domain.repositories.ConfigRepository
 import com.example.keyraceapp.domain.repositories.ScoreRepository
 import com.example.keyraceapp.domain.repositories.WordRepository
-import com.example.keyraceapp.presentation.Game.ConfigState
 import com.example.keyraceapp.util.Resource
 import com.example.keyraceapp.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
