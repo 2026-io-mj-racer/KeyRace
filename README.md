@@ -8,20 +8,24 @@ Typing speed racing game for Android built with Kotlin and Jetpack Compose.
 - Measure typing speed
 - Track typing accuracy
 - Display a summary after each session
-
-![Training Mode](screenshots/training.png)
-
-![Session stats](screenshots/game_stats.png)
+<p align="center">
+  <img src="screenshots/training.png" width="250" alt="Training Mode"/>
+  <img src="screenshots/game_stats.png" width="250" alt="Session Stats"/>
+</p>
 
 #### Arcade Mode
 - Words fall from the top of the screen
 - The player has to type the words before they disappear
-- 
-![Arcade Mode](screenshots/arcade.png)
+
+<p align="center">
+  <img src="screenshots/arcade.png" width="250" alt="Arcade Mode"/>
+</p>
 
 #### Profile Screen with Stats
+<p align="center">
+  <img  src="screenshots/profile.png" width="250" alt="User Stats"/>
+</p>
 
-![User Stats](screenshots/profile.png)
 
 ## Tech Stack
 - **Kotlin** — main programming language
