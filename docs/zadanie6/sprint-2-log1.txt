@@ -1,0 +1,18 @@
+ca27c59 Merge pull request #22 from 2026-io-mj-racer/feature/navigation+ui
+1aebe81 refactor: seperate finishing logic from updateTyping, delegate finishing logic for timer in TimeBasedMode
+6b3654d add: concurent timer for TimeBased mode working with approximately 0.1s accuracy
+b123716 refactor ConfigScreen extract training/arcade config optioons into two separate components
+6e75a21 refactor updateTyping() - extract word /mistake counting logic into seperate function
+efb1895 change TypingCalculator tests to accept time in ms not in s
+6e588ae add: updateTyping now invokes computeAccAndWpm and that updates wpm and acc of last 5 words
+35126a4 FIX: test logic changes for updateTyping and word/mistakes counting and pausing/resuming
+aa721bd add: rounded rectangle as a background for score table
+3d4306d add: saving the result now doesnt block the main thread
+434c3ef add: basic stats after game screen
+520a1a2 Add naviagtion and game Event handling for WORD BASED training mode seems to work:)
+3bcac10 Add cursor to TextInputLine
+92be55d Merge pull request #20 from 2026-io-mj-racer/feature/navigation+ui
+55891ca refactor: remove repetitions in GameScreen into three reusable components TextInputLine Buttons and GameInputDisplay
+47810f0 change: mistakesMade and correctWords counted once for each bucket, added pausing, resuming, restarting icons
+98a27e6 GameViewModel - updateTyping logic with invisble textField on GameScreen
+ccc5dbb deleting one test because of change in method return type

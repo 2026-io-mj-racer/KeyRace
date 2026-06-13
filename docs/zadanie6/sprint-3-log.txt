@@ -1,18 +1,28 @@
-ca27c59 Merge pull request #22 from 2026-io-mj-racer/feature/navigation+ui
-1aebe81 refactor: seperate finishing logic from updateTyping, delegate finishing logic for timer in TimeBasedMode
-6b3654d add: concurent timer for TimeBased mode working with approximately 0.1s accuracy
-b123716 refactor ConfigScreen extract training/arcade config optioons into two separate components
-6e75a21 refactor updateTyping() - extract word /mistake counting logic into seperate function
-efb1895 change TypingCalculator tests to accept time in ms not in s
-6e588ae add: updateTyping now invokes computeAccAndWpm and that updates wpm and acc of last 5 words
-35126a4 FIX: test logic changes for updateTyping and word/mistakes counting and pausing/resuming
-aa721bd add: rounded rectangle as a background for score table
-3d4306d add: saving the result now doesnt block the main thread
-434c3ef add: basic stats after game screen
-520a1a2 Add naviagtion and game Event handling for WORD BASED training mode seems to work:)
-3bcac10 Add cursor to TextInputLine
-92be55d Merge pull request #20 from 2026-io-mj-racer/feature/navigation+ui
-55891ca refactor: remove repetitions in GameScreen into three reusable components TextInputLine Buttons and GameInputDisplay
-47810f0 change: mistakesMade and correctWords counted once for each bucket, added pausing, resuming, restarting icons
-98a27e6 GameViewModel - updateTyping logic with invisble textField on GameScreen
-ccc5dbb deleting one test because of change in method return type
+c224172 updated git ignore for release files
+18b0d3a smaller scs
+5da0168 updated README
+f14dfc4 Merge pull request #35 from 2026-io-mj-racer/feature/navigation+ui
+9ae6434 Optimize imports
+3f72176 Merge pull request #34 from 2026-io-mj-racer/feature/navigation+ui
+a22ac62 fix: added same black for every screen :)
+f77e556 fix: GameViewModel timer tests now they pass
+5d84cea 2 profile viewmodel tests changed because of lack of mock and wrong assertion
+7418fce small fix in MappersTest only compare names of users no need for random id checking
+5763b23 changed buildScore() test because of parameter list change
+93091b2 Changed test for computePoints() now it only is based on length and difficulty
+109db0d enforce thte system icons are white
+0ed7b50 Merge pull request #33 from 2026-io-mj-racer/feature/navigation+ui
+608517f fix: Lives and Score now are displayed during gameplay and are correctly updated
+187c211 fix: reset data bug, now resting data only resetes game stats not the name
+ccc660e fix: now backspace correctly updates letters coloros in arcade mode UI
+be3aba5 sprint demo + retro
+55a141b Merge pull request #25 from 2026-io-mj-racer/feature/navigation+ui
+f39f66c Arcade view model now saves result to db
+5cb703b fix: new formula for calculating score
+d841bc1 fix: reset state after exiting game
+1d8b3ab add: ConfigState compatibility - difficulty is read correctly
+367d2ee ConfigState moved out to ConfigRepo because it needs to be shared between two ViewModels
+57d9ae2 add: Arcade mdoe now fetches words from wordRepository
+c9e58cf first version of arcade mode
+9d3ecc9 optimize imports
+36c59ce fix: timer now starts only when needed - not every time user types sth :)
